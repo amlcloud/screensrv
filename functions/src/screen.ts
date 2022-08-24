@@ -24,7 +24,12 @@ type Query = admin.firestore.Query;
 export const screen = functions.https.onRequest(async (req: any, res: any) => {
   const { name, gramSize, pres} = req.query
   const resultsCount = await _screen(name as string, gramSize as number, pres as number);
-  let results: any[] = [];
+  let screenData: any[] = [];
+  let data: any = {
+    resultsCount,
+    screenData,
+  }
+
   var gramCounts: { [key: string]: any; } = gramCounterBool(name.toLowerCase(), gramSize);
   var comArr = Object.keys(gramCounts).map((key, index) => key);
   var a = k_combinations(comArr, Math.round(Object.keys(gramCounts).length * pres));
@@ -38,9 +43,10 @@ export const screen = functions.https.onRequest(async (req: any, res: any) => {
   for (let i of r) {
     for (let f of i.docs) {
       const screeninfo = await db.collection('search').doc(name).collection('res').doc(f.id).get();
-      results.push(screeninfo);
+      data.screenData.push(screeninfo);
   }};
-  res.send(`screening results count: ${resultsCount.toString()}!`);
+
+  res.send(data);
 });
 
 export const onSearchCreate = functions.firestore.document
