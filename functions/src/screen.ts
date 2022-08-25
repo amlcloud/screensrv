@@ -12,16 +12,41 @@ type Query = admin.firestore.Query;
 // });
 
 /**
- * Returns INFO object containg screening results of all entrys with name 'name'
+ * Responds with object containg screening results of all entrys with name 'name'
  * @param {string} name
  * @param {number} gramSize
  * @param {number} pres
- * @return {INFO}
+ * @return {
+ *    resultsCount: // Num. of results returned
+ *    screenData: // Array of objects containing screen data for all results
+ * } 
  */
 export const screen = functions.https.onRequest(async (req: any, res: any) => {
   const { name, gramSize, pres} = req.query
   const resultsCount = await _screen(name as string, gramSize as number, pres as number);
-  res.send(`screening results count: ${resultsCount.toString()}!`);
+  let screenData: any[] = [];
+  let data: any = {
+    resultsCount,
+    screenData,
+  }
+
+  var gramCounts: { [key: string]: any; } = gramCounterBool(name.toLowerCase(), gramSize);
+  var comArr = Object.keys(gramCounts).map((key, index) => key);
+  var a = k_combinations(comArr, Math.round(Object.keys(gramCounts).length * pres));
+  let r: QuerySnapshot[] = await Promise.all(a.map((ar: any) => {
+    let query: Query = db.collection('index');
+      for (let key in ar) {
+        query = query.where(ar[key], '==', true);
+      }
+      return query.get();
+  }));
+  for (let i of r) {
+    for (let f of i.docs) {
+      const screeninfo = await db.collection('search').doc(name).collection('res').doc(f.id).get();
+      data.screenData.push(screeninfo);
+  }};
+
+  res.send(data);
 });
 
 export const onSearchCreate = functions.firestore.document
