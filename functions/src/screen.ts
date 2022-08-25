@@ -11,13 +11,18 @@ type Query = admin.firestore.Query;
 //   res.send(`screening results count: ${resultsCount.toString()}!`);
 // });
 
-// export const screen = functions.https.onRequest(async (request, response) => {
-//   // functions.logger.info("Hello logs!", {structuredData: true});
-//   // response.send("Hello from Firebase!");
-//   const resultsCount = await screen(request.query.name, 2, 0.95);
-//   response.send(`screening results count: ${resultsCount.toString()}!`);
-
-// });
+/**
+ * Returns INFO object containg screening results of all entrys with name 'name'
+ * @param {string} name
+ * @param {number} gramSize
+ * @param {number} pres
+ * @return {INFO}
+ */
+export const screen = functions.https.onRequest(async (req: any, res: any) => {
+  const { name, gramSize, pres} = req.query
+  const resultsCount = await _screen(name as string, gramSize as number, pres as number);
+  res.send(`screening results count: ${resultsCount.toString()}!`);
+});
 
 export const onSearchCreate = functions.firestore.document
   ('search/{searchId}').onCreate(
