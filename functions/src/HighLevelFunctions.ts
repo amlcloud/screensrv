@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import { _screen } from "./screen";
-import { search } from "./fuzzy_search";
+import { fuzzy_search } from "./fuzzy_search";
 
 /**
  * Returns with object containg screening results of all entrys with name 'name'
@@ -16,7 +16,7 @@ import { search } from "./fuzzy_search";
  */
 export const findName = functions.https.onRequest(async (req: any, res: any) => {
   const { name, gramSize, pres} = req.query
-  const data = await search(name as string, gramSize as number, pres as number);
+  const data = await fuzzy_search(name as string, gramSize as number, pres as number);
   res.send(JSON.stringify(data));
 });
 

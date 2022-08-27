@@ -5,7 +5,7 @@ import { k_combinations } from "./screen";
 import QuerySnapshot = admin.firestore.QuerySnapshot;
 type Query = admin.firestore.Query;
 
-export async function search(name: string, gramSize: number, pres: number): Promise<number> {
+export async function fuzzy_search(name: string, gramSize: number, pres: number): Promise<any> {
   console.log(`search for ${name}`);
   var gramCounts: { [key: string]: any; } = gramCounterBool(name.toLowerCase(), gramSize);
   var comArr = Object.keys(gramCounts).map((key, index) => key);
@@ -38,5 +38,5 @@ export async function search(name: string, gramSize: number, pres: number): Prom
       const screeninfo = await db.collection('search').doc(name).collection('res').doc(f.id).get();
       data.screenData.push(screeninfo);
   }};
-  return Promise.resolve(resultsCount);
+  return Promise.resolve(data);
 }
