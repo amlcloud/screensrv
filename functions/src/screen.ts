@@ -6,49 +6,6 @@ import { gramCounterBool } from "./gram";
 import QuerySnapshot = admin.firestore.QuerySnapshot;
 type Query = admin.firestore.Query;
 
-// functions.https("screen", async (req: any, res: any) => {
-//   const resultsCount = await screen(req.query.name, 2, 0.95);
-//   res.send(`screening results count: ${resultsCount.toString()}!`);
-// });
-
-/**
- * Responds with object containg screening results of all entrys with name 'name'
- * @param {string} name
- * @param {number} gramSize
- * @param {number} pres
- * @return {
- *    resultsCount: // Num. of results returned
- *    screenData: // Array of objects containing screen data for all results
- * } 
- */
-export const screen = functions.https.onRequest(async (req: any, res: any) => {
-  const { name, gramSize, pres} = req.query
-  const resultsCount = await _screen(name as string, gramSize as number, pres as number);
-  let screenData: any[] = [];
-  let data: any = {
-    resultsCount,
-    screenData,
-  }
-
-  var gramCounts: { [key: string]: any; } = gramCounterBool(name.toLowerCase(), gramSize);
-  var comArr = Object.keys(gramCounts).map((key, index) => key);
-  var a = k_combinations(comArr, Math.round(Object.keys(gramCounts).length * pres));
-  let r: QuerySnapshot[] = await Promise.all(a.map((ar: any) => {
-    let query: Query = db.collection('index');
-      for (let key in ar) {
-        query = query.where(ar[key], '==', true);
-      }
-      return query.get();
-  }));
-  for (let i of r) {
-    for (let f of i.docs) {
-      const screeninfo = await db.collection('search').doc(name).collection('res').doc(f.id).get();
-      data.screenData.push(screeninfo);
-  }};
-
-  res.send(data);
-});
-
 export const onSearchCreate = functions.firestore.document
   ('search/{searchId}').onCreate(
     async (document: DocumentSnapshot, context) => {
@@ -57,7 +14,6 @@ export const onSearchCreate = functions.firestore.document
       await _screen(document.id, 2, 0.95);
 
     });
-
 
 
 export async function _screen(name: string, gramSize: number, pres: number): Promise<number> {
@@ -192,7 +148,7 @@ export async function _screen(name: string, gramSize: number, pres: number): Pro
  *   k_combinations([], 0)
  *   -> []
  */
-function k_combinations(set: any, k: any): any {
+export function k_combinations(set: any, k: any): any {
   var i, j, combs, head, tailcombs;
 
   // There is no way to take e.g. sets of 5 elements from

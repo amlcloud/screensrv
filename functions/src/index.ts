@@ -18,7 +18,7 @@ export var db = getFirestore();
 export { onSearchCreate } from './screen';
 export { getList } from './list';
 export { getListDetails } from './list';
-export { screen } from './screen';
+export { _screen } from './screen';
 
 
 
