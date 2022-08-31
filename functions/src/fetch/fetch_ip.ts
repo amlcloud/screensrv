@@ -1,18 +1,18 @@
 import * as functions from "firebase-functions";
 const sanctions = require("../../../../../sanctions/src");
 import { saveList } from "./common";
-const listId = "pmddtc.state.gov";
-const fieldId = "Federal Register Notice";
+const listId = " https://www.interpol.int/";
+const fieldId = "Interpol Red Notice";
 
 export const fetchUSAlist = functions.pubsub.schedule("5 11 * * *").timeZone("Australia/Sydney").onRun(async () => {
   console.log("This will be run every day at 11:05 AM");
-  await fetchip();
+  await fetchIPList();
   return null;
 });
 
-export async function fetchip() {
+export async function fetchIPList() {
   try {
-    const list = await sanctions.fetchip();
+    const list = await sanctions.fetchIP();
     await saveList(list, listId, fieldId);
   } catch (error) {
     console.log("error ", error);
