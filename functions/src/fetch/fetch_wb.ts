@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import { fetchUN } from "../../../../sanctions/src";
+const sanctions = require("sanctions");
 import { saveList } from "./common";
 const listId = "webgate.ec.europa.eu";
 const fieldId = "euReferenceNumber";
@@ -15,7 +15,7 @@ export const unList = functions.pubsub
 
 export async function fetchUNList() {
   try {
-    const list = await fetchUN();
+    const list = await sanctions.fetchUN();
     await saveList(list, listId, fieldId);
   } catch (error) {
     console.log("error ", error);
