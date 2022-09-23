@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 const sanctions = require("sanctions");
-import { saveList } from "./common";
+import { saveList } from "../common";
 const listId = "pmddtc.state.gov";
 const fieldId = "Federal Register Notice";
 

@@ -11,10 +11,15 @@ export { onSearchCreate } from './screen';
 export { getList } from './list';
 export { getListDetails } from './list';
 
-// export { _screen } from './screen';
-export { fetchAU } from "./fetch/fetch_au";
-export { fetchNL } from "./fetch/fetch_nl";
-export { fetchEU } from "./fetch/fetch_eu";
-export { fetchUSA } from "./fetch/fetch_usa";
-export { scheduledFunction } from "./fetch/fetch_au";
-
+export { dfat_gov_au__consolidated_list } from "./fetch";
+export { gov_uk__financial_sanctions_list } from "./fetch";
+export { ec_europa_eu__sanctions_list } from "./fetch";
+export { government_nl__dnslt } from "./fetch";
+export { worldbank_org__debarred_firms_and_individuals } from "./fetch";
+export { un_org__consolidated_individuals } from "./fetch";
+export { un_org__consolidated_entities } from "./fetch";
+export { treasury_gov__sdnl } from "./fetch";
+// export {  } from "./fetch";
+// export {  } from "./fetch";
+// export {  } from "./fetch";
+// export {  } from "./fetch";

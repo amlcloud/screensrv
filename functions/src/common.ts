@@ -1,5 +1,5 @@
 import { CollectionReference, DocumentReference, FieldValue } from "firebase-admin/firestore";
-import { db } from "../index";
+import { db } from "./index";
 import { createHash } from "node:crypto";
 
 const FIRESTORE_WRITE_BATCH_SIZE = 450;
