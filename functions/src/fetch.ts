@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 const sanctions = require("sanctions");
+import sanctions from 'sanctions';
 import { saveList } from "./common";
 
 export const dfat_gov_au__consolidated_list = functions.pubsub
@@ -71,23 +72,94 @@ export const treasury_gov__sdnl = functions.pubsub
 });
 
 
-// export const pmddtc_state_gov__aeca_dsl = functions.pubsub
-// .schedule("5 11 * * *")
-// .timeZone("Australia/Sydney")
-// .onRun(async () => {
-//     await saveList(await sanctions.pmddtc_state_gov__aeca_dsl(), 
-//     'pmddtc_state_gov__aeca_dsl', "Name of Individual or Entity");
-// });
+export const pmddtc_state_gov__aeca_dsl = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.pmddtc_state_gov__aeca_dsl(), 
+    'pmddtc_state_gov__aeca_dsl', "Name of Individual or Entity");
+});
 
 
-// export const trade_gov_csl = functions.pubsub
-// .schedule("5 11 * * *")
-// .timeZone("Australia/Sydney")
-// .onRun(async () => {
-//     await saveList(await sanctions.trade_gov_csl(), 
-//     'trade_gov_csl', "Name of Individual or Entity");
-// });
+export const trade_gov_csl = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.trade_gov_csl(), 
+    'trade_gov_csl', "Name of Individual or Entity");
+});
 
+
+export const bis_doc_gov__denied_persons = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.bis_doc_gov__denied_persons(), 
+    'bis_doc_gov__denied_persons', "Name of Individual or Entity");
+});
+
+
+export const ecfr_gov__entity_list = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.ecfr_gov__entity_list(), 
+    'ecfr_gov__entity_list', "Name of Individual or Entity");
+});
+
+
+export const state_gov__nps = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.state_gov__nps(), 
+    'state_gov__nps', "Name of Individual or Entity");
+});
+
+
+export const occ_gov__enforcement_actions = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.occ_gov__enforcement_actions(), 
+    'occ_gov__enforcement_actions', "Name of Individual or Entity");
+});
+
+
+export const ecfr_gov__militaryenduser = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.ecfr_gov__militaryenduser(), 
+    'ecfr_gov__militaryenduser', "Name of Individual or Entity");
+});
+
+
+export const ecfr_gov__unverified = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.ecfr_gov__unverified(), 
+    'ecfr_gov__unverified', "Name of Individual or Entity");
+});
+
+
+export const dgtresor_gouv_fr__national_freeze_registry = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.dgtresor_gouv_fr__national_freeze_registry(), 
+    'dgtresor_gouv_fr__national_freeze_registry', "Name of Individual or Entity");
+});
+
+
+export const gc_ca__consol_autonomous_sanctions = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.gc_ca__consol_autonomous_sanctions(), 
+    'gc_ca__consol_autonomous_sanctions', "Name of Individual or Entity");
+});
 
 // export const  = functions.pubsub
 // .schedule("5 11 * * *")
@@ -96,8 +168,6 @@ export const treasury_gov__sdnl = functions.pubsub
 //     await saveList(await sanctions.(), 
 //     '', "Name of Individual or Entity");
 // });
-
-
 // export const  = functions.pubsub
 // .schedule("5 11 * * *")
 // .timeZone("Australia/Sydney")
@@ -105,8 +175,6 @@ export const treasury_gov__sdnl = functions.pubsub
 //     await saveList(await sanctions.(), 
 //     '', "Name of Individual or Entity");
 // });
-
-
 // export const  = functions.pubsub
 // .schedule("5 11 * * *")
 // .timeZone("Australia/Sydney")
@@ -114,8 +182,6 @@ export const treasury_gov__sdnl = functions.pubsub
 //     await saveList(await sanctions.(), 
 //     '', "Name of Individual or Entity");
 // });
-
-
 // export const  = functions.pubsub
 // .schedule("5 11 * * *")
 // .timeZone("Australia/Sydney")
@@ -123,8 +189,6 @@ export const treasury_gov__sdnl = functions.pubsub
 //     await saveList(await sanctions.(), 
 //     '', "Name of Individual or Entity");
 // });
-
-
 // export const  = functions.pubsub
 // .schedule("5 11 * * *")
 // .timeZone("Australia/Sydney")
@@ -132,8 +196,13 @@ export const treasury_gov__sdnl = functions.pubsub
 //     await saveList(await sanctions.(), 
 //     '', "Name of Individual or Entity");
 // });
-
-
+// export const  = functions.pubsub
+// .schedule("5 11 * * *")
+// .timeZone("Australia/Sydney")
+// .onRun(async () => {
+//     await saveList(await sanctions.(), 
+//     '', "Name of Individual or Entity");
+// });
 // export const  = functions.pubsub
 // .schedule("5 11 * * *")
 // .timeZone("Australia/Sydney")
