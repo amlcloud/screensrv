@@ -161,6 +161,14 @@ export const gc_ca__consol_autonomous_sanctions = functions.pubsub
     'gc_ca__consol_autonomous_sanctions', "Name of Individual or Entity");
 });
 
+export const publicsafety_gc_ca__counter_terrorism_entity = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.publicsafety_gc_ca__counter_terrorism_entity(), 
+    'publicsafety_gc_ca__counter_terrorism_entity', "Name of Individual or Entity");
+});
+
 // export const  = functions.pubsub
 // .schedule("5 11 * * *")
 // .timeZone("Australia/Sydney")
