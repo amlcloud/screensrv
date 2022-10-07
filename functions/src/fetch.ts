@@ -2,17 +2,6 @@ import * as functions from "firebase-functions";
 import * as sanctions from "sanctions";
 import { saveList } from "./common";
 
-// For testing the sanctions module
-fetch();
-export async function fetch() {
-    try {
-        console.log("fetch");
-      const list = await sanctions.dfat_gov_au__consolidated_list();
-      await saveList(list, "dfat_gov_au__consolidated_list", "fieldId");
-    } catch (error) {
-      console.log("error ", error);
-    }
-  }
 
 export const dfat_gov_au__consolidated_list = functions.pubsub
 .schedule("5 11 * * *")
