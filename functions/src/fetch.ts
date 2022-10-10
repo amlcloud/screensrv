@@ -4,11 +4,16 @@ import { saveList } from "./common";
 
 
 export const dfat_gov_au__consolidated_list = functions.pubsub
-.schedule("5 11 * * *")
+//.schedule("* * * * *")
+.schedule("every 5 minutes")
 .timeZone("Australia/Sydney")
-.onRun(async () => {
-    await saveList(await sanctions.dfat_gov_au__consolidated_list(), 
+.onRun(async () =>{ 
+  console.log('fetch list...');
+  await sanctions.dfat_gov_au__consolidated_list();
+  console.log('saveList...');
+  await saveList(await sanctions.dfat_gov_au__consolidated_list(), 
     'dfat_gov_au__consolidated_list', "Name of Individual or Entity");
+  return null;
 });
 
 // //fetchUK in index.js
@@ -24,6 +29,8 @@ export const ec_europa_eu__sanctions_list = functions.pubsub
 .schedule("5 11 * * *")
 .timeZone("Australia/Sydney")
 .onRun(async () => {
+  await sanctions.ec_europa_eu__sanctions_list();
+
     await saveList(await sanctions.ec_europa_eu__sanctions_list(), 
     'ec_europa_eu__sanctions_list', "Name of Individual or Entity");
 });
