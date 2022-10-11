@@ -20,7 +20,7 @@ export async function saveList(jsonArray: any[], listId: string, fieldId: string
       "lastUpdateHash": hash,
     }
   );
-  saveDocuments(jsonArray, docRef.collection("item"), fieldId);
+  await saveDocuments(jsonArray, docRef.collection("item"), fieldId);
 }
 /**
  * Saves array of JSON objects into documents with IDs specified in one of the fields
