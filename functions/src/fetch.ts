@@ -236,14 +236,14 @@ export const occ_gov__enforcement_actions = functions.pubsub
 //     'ecfr_gov__unverified', "Name of Individual or Entity");
 // });
 
-// Have to add in index.js
-// export const dgtresor_gouv_fr__national_freeze_registry = functions.pubsub
-// .schedule("5 11 * * *")
-// .timeZone("Australia/Sydney")
-// .onRun(async () => {
-//     await saveList(await sanctions.dgtresor_gouv_fr__national_freeze_registry(), 
-//     'dgtresor_gouv_fr__national_freeze_registry', "Name of Individual or Entity");
-// });
+
+export const dgtresor_gouv_fr__national_freeze_registry = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.dgtresor_gouv_fr__national_freeze_registry(), 
+    'dgtresor_gouv_fr__national_freeze_registry', "Name of Individual or Entity");
+});
 
 // Have to add in index.js
 // export const gc_ca__consol_autonomous_sanctions = functions.pubsub
@@ -264,6 +264,14 @@ export const occ_gov__enforcement_actions = functions.pubsub
 // });
 
 
+
+export const publicsafety_gc_ca__counter_terrorism_entity = functions.pubsub
+.schedule("5 11 * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => {
+    await saveList(await sanctions.publicsafety_gc_ca__counter_terrorism_entity(), 
+    'gc_ca__consol_autonomous_sanctions', "Name of Individual or Entity");
+});
 
 // export const  = functions.pubsub
 // .schedule("5 11 * * *")
