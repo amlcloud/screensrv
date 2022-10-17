@@ -270,7 +270,11 @@ export const publicsafety_gc_ca__counter_terrorism_entity = functions.pubsub
 .timeZone("Australia/Sydney")
 .onRun(async () => {
     await saveList(await sanctions.publicsafety_gc_ca__counter_terrorism_entity(), 
+<<<<<<< HEAD
+    'publicsafety_gc_ca__counter_terrorism_entity', "Name of Individual or Entity");
+=======
     'gc_ca__consol_autonomous_sanctions', "Name of Individual or Entity");
+>>>>>>> 76842aa4b1bc9af47f3b39382c73cad3b4ae25e6
 });
 
 // export const  = functions.pubsub
