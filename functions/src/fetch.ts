@@ -1,92 +1,149 @@
 // import axios from "axios";
+import { FieldValue } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 import * as sanctions from "sanctions";
-import { saveList } from "./common";
+import { db } from ".";
+import { safeString, saveList } from "./common";
+import { gramCounterBool } from "./gram";
 // import fetch from 'node-fetch';
 // const XLSX = require("xlsx");
 // import { dfat_gov_au__consolidated_list1 } from "./dfat_gov_au__consolidated_list";
 const cors = require('cors')({ origin: true });
 
-export const get_dfat_gov_au__consolidated_list = functions.runWith({timeoutSeconds:500}).https
+export const test = functions.runWith({timeoutSeconds:500}).https
+.onRequest(async (request, res) => {
+  
+    res.send(JSON.stringify(request.body));
+  });
+
+export const index_list = functions.runWith({timeoutSeconds:540}).https
 .onRequest(async (request, res) => {
   cors(request, res,async () => {
 
-    console.log('load list...');
-    const result=await sanctions.dfat_gov_au__consolidated_list();
-    console.log('saveList...');
-    await saveList(await sanctions.dfat_gov_au__consolidated_list(), 
-      'dfat_gov_au__consolidated_list', "Name of Individual or Entity");
-      res.send(result);
+    const listId:string=request.query.list as string;
+    const fieldId:string=request.query.field as string;
 
-//   console.log('fetch list...');
-//   //const res=await dfat_gov_au__consolidated_list1();
-//   // const resp = 
-//   const response = await fetch('https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xls');
-// // const body = await response.buffer();//.text();
-// // console.log(`${body}`);
-// // console.log('axios...');
-//   // await axios({
-//   //   method: "GET",
-//   //   url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xls",
-//   //   responseType: "arraybuffer",
-//   // }).then(response => {
-//   //   console.log(response.data);
-//   //   return res.status(200).json({
-//   //     message: response.data.ip
-//   //   })
-//   // })
-//   // .catch(err => {
-//   //   return res.status(500).json({
-//   //     error: err
-//   //   })
-//   // })
-//   const buffers: any = [];
-//   console.log("pushing to buffer");
-//     buffers.push(await response.buffer());
-//     const buffer = Buffer.concat(buffers);
-//     const workbook = XLSX.read(buffer);
-//     const sheetName = workbook.SheetNames[0];
-//     console.log("sheetName ", sheetName);
+    console.log(`indexing list ${listId} by ${fieldId}`)
+    const items=
+    await db.collection("list").doc(listId).collection('item').get();
 
-//     // CONVERT SHEET TO JSON
-//   const auIndividuals = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-//   console.log("au Individuals count ", auIndividuals.length);
+    let counter = 0;
+    let batch = db.batch();
 
-//   let result = [];
-//   for (const person of auIndividuals as any) {
-//     // console.log(
-//     //   `loop # ${++count} -- looping over ${person["Name of Individual or Entity"]}`
-//     // );
 
-//     let p: any = {};
+    for(let itm of items.docs) {
+      
+      batch.set(
+      db
+        .collection('index')
+        .doc('dfat_gov_au__consolidated_list'+'|'+safeString(itm.data()[fieldId]))
+        ,{
+          'ref': itm.ref,
+          'target': itm.data()[fieldId],
+          't': FieldValue.serverTimestamp(),
+          ...gramCounterBool(itm.data()[fieldId], 2),
+        });
+        counter++;
 
-//     p["Reference"] = person["Reference"] || "";
-//     p["Name of Individual or Entity"] =
-//       person["Name of Individual or Entity"] || "";
-//     p["Type"] = person["Type"] || "";
-//     p["Name Type"] = person["Name Type"] || "";
-//     p["Date of Birth"] = person["Date of Birth"] || "";
-//     p["Place of Birth"] = person["Place of Birth"] || "";
-//     p["Citizenship"] = person["Citizenship"] || "";
-//     p["Address"] = person["Address"] || "";
-//     p["Additional Information"] = person["Additional Information"] || "";
-//     p["Listing Information"] = person["Listing Information"] || "";
-//     p["Committees"] = person["Committees"] || "";
-//     p["Control Date"] = person["Control Date"] || "";
+        if (counter > 490) {
+          await batch.commit();
+          batch = db.batch();
+          counter = 0;
+        }
+    }
+    await batch.commit();
 
-//     const docId = person["Name of Individual or Entity"];
+    console.log(`indexed list ${listId} by ${fieldId}: ${items.size} entities`)
 
-//     console.log("docId ", docId);
+    res.send(`indexed list ${request.query.list}`);
 
-//     result.push(p);
-//   }
-
-  
-//   res.send(result);
-//   // res.send('done');
   })
 });
 
+
+export const index_list2 = functions.runWith({timeoutSeconds:540}).https
+.onRequest(async (request, res) => {
+  cors(request, res,async () => {
+
+    const listId:string=request.query.list as string;
+    const fieldId:string=request.query.field as string;
+    const settings:any=request.body;
+
+    console.log(`indexing list ${listId} by ${fieldId} with settings ${JSON.stringify(settings)}`)
+    const items=
+    await db.collection("list").doc(listId).collection('item').get();
+
+    let counter = 0;
+    let batch = db.batch();
+
+
+    for(let itm of items.docs) {
+
+      console.log(`parse item ${JSON.stringify(itm.data())}`)
+
+      for(let setting of settings) {
+        if(setting.type==='array') {
+          console.log(`parse array ${JSON.stringify(itm.data()[setting.field])}`)
+
+          if(typeof itm.data()[setting.field] ==='object') {
+            addToBatch(batch, listId, itm.ref, itm.data()[setting.field][setting.subField])
+
+            counter++;
+            if (counter > 490) {
+              await batch.commit();
+              batch = db.batch();
+              counter = 0;
+            }
+          } else {
+          for(let entry of itm.data()[setting.field].values) {
+            console.log(`array entry ${entry}`)
+            
+            addToBatch(batch, listId, itm.ref, entry[setting.subField])
+
+            counter++;
+            if (counter > 490) {
+              await batch.commit();
+              batch = db.batch();
+              counter = 0;
+            }
+          }
+        }
+        } else {
+          addToBatch(batch, listId, itm.ref, itm.data()[setting.field])
+
+          counter++;
+          if (counter > 490) {
+            await batch.commit();
+            batch = db.batch();
+            counter = 0;
+          }
+        }
+        
+          
+        }
+    }
+    await batch.commit();
+
+    console.log(`indexed list ${listId} by ${fieldId}: ${items.size} entities`)
+
+    res.send(`indexed list ${request.query.list}`);
+
+  })
+});
+
+function addToBatch(batch:any, listId:any, ref:any, name:string)
+{
+  batch.set(
+    db
+      .collection('index')
+      .doc(listId+'|'+safeString(name))
+      ,{
+        'ref': ref,
+        'target': name,
+        't': FieldValue.serverTimestamp(),
+        ...gramCounterBool(name, 2),
+      });
+}
 
 export const dfat_gov_au__consolidated_list = functions.pubsub
 //.schedule("* * * * *")
@@ -270,11 +327,7 @@ export const publicsafety_gc_ca__counter_terrorism_entity = functions.pubsub
 .timeZone("Australia/Sydney")
 .onRun(async () => {
     await saveList(await sanctions.publicsafety_gc_ca__counter_terrorism_entity(), 
-<<<<<<< HEAD
-    'publicsafety_gc_ca__counter_terrorism_entity', "Name of Individual or Entity");
-=======
     'gc_ca__consol_autonomous_sanctions', "Name of Individual or Entity");
->>>>>>> 76842aa4b1bc9af47f3b39382c73cad3b4ae25e6
 });
 
 // export const  = functions.pubsub

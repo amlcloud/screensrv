@@ -10,7 +10,6 @@ export const onSearchCreate = functions.firestore.document
   ('search/{searchId}').onCreate(
     async (document: DocumentSnapshot, context) => {
 
-
       await _screen(document.id, 2, 0.95);
 
     });

@@ -11,7 +11,9 @@ export { onSearchCreate } from './screen';
 export { getList } from './list';
 export { getListDetails } from './list';
 
-export { get_dfat_gov_au__consolidated_list }  from './fetch';
+export { index_list }  from './fetch';
+export { index_list2 }  from './fetch';
+export { test }  from './fetch';
 
 export { dfat_gov_au__consolidated_list } from "./fetch";
 // export { gov_uk__financial_sanctions_list } from "./fetch";

@@ -4,6 +4,10 @@ import { createHash } from "node:crypto";
 
 const FIRESTORE_WRITE_BATCH_SIZE = 450;
 
+export function safeString(unsafe: string):string {
+  return unsafe.replace(/\//gi, "_");
+}
+
 // Saving list
 export async function saveList(jsonArray: any[], listId: string, fieldId: string) {
   let docRef: DocumentReference = db.collection("list").doc(listId);
