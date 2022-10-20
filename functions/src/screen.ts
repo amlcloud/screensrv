@@ -10,9 +10,28 @@ export const onSearchCreate = functions.firestore.document
   ('search/{searchId}').onCreate(
     async (document: DocumentSnapshot, context) => {
 
-      await _screen(document.id, 2, 0.95);
+      await _screen(document.id, 2, 0.9);
 
     });
+
+
+
+export const screen = functions.runWith({timeoutSeconds:540}).https
+.onRequest(async (request, res) => {
+  const searchTarget:string=request.query.target as string;
+
+  const resultDoc=await db.collection('search').doc(searchTarget).get();
+
+  if(resultDoc.exists) {
+    res.send(resultDoc.data());
+    return;
+  }
+  await _screen(searchTarget, 2, 0.9);
+  if(resultDoc.exists) {
+    res.send(resultDoc.data());
+    return;
+  } else res.send('something went wrong');
+});
 
 
 export async function _screen(name: string, gramSize: number, pres: number): Promise<number> {
@@ -34,14 +53,16 @@ export async function _screen(name: string, gramSize: number, pres: number): Pro
   // }
 
   //const pres=0.90;
-  console.log(`grams are: ${Object.keys(gramCounts).map((key, index) => key)}, precision: ${Math.round(Object.keys(gramCounts).length * pres)} (${Object.keys(gramCounts).length} of permutations)`);
+  const combinationsArraySize=Math.round(Object.keys(gramCounts).length * pres);
+  console.log(`grams are: ${Object.keys(gramCounts).map((key, index) => key)} (${Object.keys(gramCounts).length}),\\\
+   precision: ${pres}, combinations array size: ${combinationsArraySize}`);
 
   //console.log(`combinations: n!/(n-r)! ${factorial(Object.keys(gramCounts).length)/ factorial(Object.keys(gramCounts).length-Math.round(Object.keys(gramCounts).length*pres))}`);
   //console.log(`combinations: n!/(n-r)! ${factorial(10)/ factorial(10-9)}`);
 
   var comArr = Object.keys(gramCounts).map((key, index) => key);
   console.log(`comb arr: ${comArr}`);
-  var a = k_combinations(comArr, Math.round(Object.keys(gramCounts).length * pres));
+  var a = k_combinations(comArr, combinationsArraySize);
 
   console.log(`combine entries: (${a.length} total)`);
   {
@@ -91,11 +112,10 @@ export async function _screen(name: string, gramSize: number, pres: number): Pro
       // if(existingSearchDoc===undefined) 
       {
         await db.collection('search').doc(name).collection('res').doc(f.id).set({
-          "#": f.data()['#'],
-          "$": f.data()['$'],
-          // "_": f.data()['_'],
-          "levScore": matchLevenshtein(f.data()['#'], name),
-          "gramScore": matchGram(f.data()['#'], name, 2)
+          "target": f.data()['target'],
+          "ref": f.data()['ref'],
+          "levScore": matchLevenshtein(f.data()['target'], name),
+          "gramScore": matchGram(f.data()['target'], name, 2)
         });
       }
 
