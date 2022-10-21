@@ -19,6 +19,7 @@ export const onSearchCreate = functions.firestore.document
 export const screen = functions.runWith({timeoutSeconds:540}).https
 .onRequest(async (request, res) => {
   const searchTarget:string=request.query.target as string;
+  const precision:number=parseFloat(request.query.precision as string);
 
   const resultDoc=await db.collection('search').doc(searchTarget).get();
 
@@ -26,7 +27,8 @@ export const screen = functions.runWith({timeoutSeconds:540}).https
     res.send(resultDoc.data());
     return;
   }
-  await _screen(searchTarget, 2, 0.9);
+  
+  await _screen(searchTarget, 2, precision===undefined?0.9:precision);
   if(resultDoc.exists) {
     res.send(resultDoc.data());
     return;
@@ -36,6 +38,7 @@ export const screen = functions.runWith({timeoutSeconds:540}).https
 
 export async function _screen(name: string, gramSize: number, pres: number): Promise<number> {
   console.log(`search for ${name}`);
+
 
   var gramCounts: { [key: string]: any; } = gramCounterBool(name.toLowerCase(), gramSize);
 
@@ -56,6 +59,8 @@ export async function _screen(name: string, gramSize: number, pres: number): Pro
   const combinationsArraySize=Math.round(Object.keys(gramCounts).length * pres);
   console.log(`grams are: ${Object.keys(gramCounts).map((key, index) => key)} (${Object.keys(gramCounts).length}),\\\
    precision: ${pres}, combinations array size: ${combinationsArraySize}`);
+  
+   
 
   //console.log(`combinations: n!/(n-r)! ${factorial(Object.keys(gramCounts).length)/ factorial(Object.keys(gramCounts).length-Math.round(Object.keys(gramCounts).length*pres))}`);
   //console.log(`combinations: n!/(n-r)! ${factorial(10)/ factorial(10-9)}`);
@@ -106,7 +111,7 @@ export async function _screen(name: string, gramSize: number, pres: number): Pro
     //console.log(`${r.id} returned size: ${r.size}`);
     for (let f of r.docs) {
 
-      console.log(`found: ${f.data()['#']} levenshtein: ${matchLevenshtein(f.data()['#'], name)}, gram: ${matchGram(f.data()['#'], name, 2)}`);
+      console.log(`found: ${f.data()['target']} levenshtein: ${matchLevenshtein(f.data()['target'], name)}, gram: ${matchGram(f.data()['target'], name, 2)}`);
 
       // let existingSearchDoc=searchQS.docs.find((d) => d.data()['$']===f.data()['$'] );
       // if(existingSearchDoc===undefined) 
