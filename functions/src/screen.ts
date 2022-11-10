@@ -7,13 +7,12 @@ import QuerySnapshot = admin.firestore.QuerySnapshot;
 type Query = admin.firestore.Query;
 
 export const onSearchCreate = functions.firestore.document
-  ('search/{searchId}').onCreate(
+  ('user/{userId}/search/{searchId}').onCreate(
     async (document: DocumentSnapshot, context) => {
 
       await _screen(document.id, 2, 0.9);
 
     });
-
 
 
 export const screen = functions.runWith({timeoutSeconds:540}).https
