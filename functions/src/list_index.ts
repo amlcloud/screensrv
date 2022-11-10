@@ -4,14 +4,13 @@ import * as functions from "firebase-functions";
 import { db } from ".";
 import { safeString } from "./common";
 import { gramCounterBool } from "./gram";
-// import fetch from 'node-fetch';
-// const XLSX = require("xlsx");
-// import { dfat_gov_au__consolidated_list1 } from "./dfat_gov_au__consolidated_list";
 const cors = require('cors')({ origin: true });
 
 export const test = functions.runWith({timeoutSeconds:500}).https
 .onRequest(async (request, res) => {
   
+    console.log(`This is a test parameter: ${request.query.test_parameter as string}`)
+    
     res.send(JSON.stringify(request.body));
   });
 
@@ -35,7 +34,7 @@ export const index_list = functions.runWith({timeoutSeconds:540}).https
       batch.set(
       db
         .collection('index')
-        .doc('dfat_gov_au__consolidated_list'+'|'+safeString(itm.data()[fieldId]))
+        .doc(listId+'|'+safeString(itm.data()[fieldId]))
         ,{
           'ref': itm.ref,
           'target': itm.data()[fieldId],
