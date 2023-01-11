@@ -8,6 +8,7 @@
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
+    "predeploy": "npm --prefix ./functions/ run lint",
     "logs": "firebase functions:log",
     "test": "ts-node src/test.ts"
   },
@@ -20,7 +21,7 @@
     "axios": "^0.27.2",
     "cors": "^2.8.5",
     "firebase-admin": "^10.0.2",
-    "firebase-functions": "^3.24.1",
+    "firebase-functions": "^4.1.1",
     "node-fetch": "^2.6.7",
     "sanctions": "github:amlcloud/sanctions",
     "spreadsheet-stream": "^1.0.2",
