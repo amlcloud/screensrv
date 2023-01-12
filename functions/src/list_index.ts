@@ -88,23 +88,35 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
         let type = indexConfig.data().type;
         for (let item of items.docs) {
           if (type === 'Single field') {
-            addToBatch(batch, listId, item.ref, item.data()[fields[0]]);
-            counter++;
-            if (counter > 490) {
-              await batch.commit();
-              batch = db.batch();
-              counter = 0;
+            let value = item.data()[fields[0]];
+            if (!Array.isArray(value)) {
+              addToBatch(batch, listId, item.ref, value);
+              counter++;
+              if (counter > 490) {
+                await batch.commit();
+                batch = db.batch();
+                counter = 0;
+              }
             }
           } else if (type === 'Multiple fields') {
-            let name = fields.map(field => {
-              return item.data()[field];
-            }).join(' ');
-            addToBatch(batch, listId, item.ref, name);
-            counter++;
-            if (counter > 490) {
-              await batch.commit();
-              batch = db.batch();
-              counter = 0;
+            var containsArray = false;
+            var name = '';
+            for (let field of fields) {
+              let value = item.data()[field];
+              if (Array.isArray(value)) {
+                containsArray = true;
+                break;
+              }
+              name += (name.length > 0 ? ' ' : '') + value;
+            }
+            if (!containsArray) {
+              addToBatch(batch, listId, item.ref, name);
+              counter++;
+              if (counter > 490) {
+                await batch.commit();
+                batch = db.batch();
+                counter = 0;
+              }
             }
           } else if (type === 'Array of values') {
             let values = item.data()[fields[0]];
