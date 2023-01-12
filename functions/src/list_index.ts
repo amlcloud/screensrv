@@ -62,71 +62,69 @@ export const index_list = functions.runWith({timeoutSeconds:540}).https
 export const index_list2 = functions.runWith({timeoutSeconds:540}).https
 .onRequest(async (request, res) => {
   cors(request, res,async () => {
-
     const listId:string=request.query.list as string;
-    const fieldId:string=request.query.field as string;
-    const settings:any=request.body;
-
-    console.log(`indexing list ${listId} by ${fieldId} with settings ${JSON.stringify(settings)}`)
-    const items=
-    await db.collection("list").doc(listId).collection('item').get();
-
+    let indices = await db.collection('index').where('listId', '==', listId).get();
+    indices.forEach(index => {
+      index.ref.delete();
+    });
     let counter = 0;
     let batch = db.batch();
-
-
-    for(let itm of items.docs) {
-
-      console.log(`parse item ${JSON.stringify(itm.data())}`)
-
-      for(let setting of settings) {
-        if(setting.type==='array') {
-          console.log(`parse array ${JSON.stringify(itm.data()[setting.field])}`)
-
-          if(!Array.isArray(itm.data()[setting.field])) {
-            console.log(`object as array: ${JSON.stringify(itm.data()[setting.field])}`)
-            addToBatch(batch, listId, itm.ref, itm.data()[setting.field][setting.subField])
-
+    const reference = await db.collection('list').doc(listId);
+    const indexConfigs = await reference.collection('indexConfigs').get();
+    const items = await reference.collection('item').get();
+    for (let indexConfig of indexConfigs.docs) {
+      let entityIndexFields = await indexConfig.ref.collection('entityIndexFields').get();
+      var valid = true;
+      let fields = [];
+      for (let entityIndexField of entityIndexFields.docs) {
+        let data = entityIndexField.data();
+        if (!data.valid) {
+          valid = false;
+          break;
+        }
+        fields.push(data.value);
+      }
+      if (valid && fields.length > 0) {
+        let type = indexConfig.data().type;
+        for (let item of items.docs) {
+          if (type === 'Single field') {
+            addToBatch(batch, listId, item.ref, item.data()[fields[0]]);
             counter++;
             if (counter > 490) {
               await batch.commit();
               batch = db.batch();
               counter = 0;
             }
-          } else {
-            for(let entry of itm.data()[setting.field]) {
-              console.log(`array entry ${JSON.stringify(entry)}`)
-              
-              addToBatch(batch, listId, itm.ref, entry[setting.subField])
-
-              counter++;
-              if (counter > 490) {
-                await batch.commit();
-                batch = db.batch();
-                counter = 0;
+          } else if (type === 'Multiple fields') {
+            let name = fields.map(field => {
+              return item.data()[field];
+            }).join(' ');
+            addToBatch(batch, listId, item.ref, name);
+            counter++;
+            if (counter > 490) {
+              await batch.commit();
+              batch = db.batch();
+              counter = 0;
+            }
+          } else if (type === 'Array of values') {
+            let values = item.data()[fields[0]];
+            if (Array.isArray(values)) {
+              for (let value of values) {
+                addToBatch(batch, listId, item.ref, value);
+                counter++;
+                if (counter > 490) {
+                  await batch.commit();
+                  batch = db.batch();
+                  counter = 0;
+                }
               }
             }
           }
-        } else {
-          addToBatch(batch, listId, itm.ref, itm.data()[setting.field])
-
-          counter++;
-          if (counter > 490) {
-            await batch.commit();
-            batch = db.batch();
-            counter = 0;
-          }
         }
-        
-          
-        }
+      }
     }
     await batch.commit();
-
-    console.log(`indexed list ${listId} by ${fieldId}: ${items.size} entities`)
-
     res.send(`indexed list ${request.query.list}`);
-
   })
 });
 
@@ -139,6 +137,7 @@ function addToBatch(batch:any, listId:any, ref:any, name:string)
       .doc(listId+'|'+safeString(name))
       ,{
         'ref': ref,
+        'listId': listId,
         'target': name,
         't': FieldValue.serverTimestamp(),
         ...gramCounterBool(name, 2),
