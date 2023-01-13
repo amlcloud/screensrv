@@ -4,6 +4,7 @@ import * as functions from "firebase-functions";
 import { db } from ".";
 import { safeString } from "./common";
 import { gramCounterBool } from "./gram";
+import { Query, QuerySnapshot } from "firebase-admin/firestore";
 const cors = require('cors')({ origin: true });
 
 export const test = functions.runWith({timeoutSeconds:500}).https
@@ -63,10 +64,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
 .onRequest(async (request, res) => {
   cors(request, res,async () => {
     const listId:string=request.query.list as string;
-    let indices = await db.collection('index').where('listId', '==', listId).get();
-    indices.forEach(index => {
-      index.ref.delete();
-    });
+    deleteLargeColByQuery(db.collection('index').where('listId', '==', listId));
     let counter = 0;
     let batch = db.batch();
     const reference = await db.collection('list').doc(listId);
@@ -75,20 +73,17 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
     for (let indexConfig of indexConfigs.docs) {
       let entityIndexFields = await indexConfig.ref.collection('entityIndexFields').get();
       var valid = true;
-      let fields = [];
       for (let entityIndexField of entityIndexFields.docs) {
-        let data = entityIndexField.data();
-        if (!data.valid) {
+        if (!entityIndexField.data().valid) {
           valid = false;
           break;
         }
-        fields.push(data.value);
       }
-      if (valid && fields.length > 0) {
+      if (valid && entityIndexFields.docs.length > 0) {
         let type = indexConfig.data().type;
         for (let item of items.docs) {
           if (type === 'Single field') {
-            let value = item.data()[fields[0]];
+            let value = item.data()[entityIndexFields.docs[0].data().value];
             if (!Array.isArray(value)) {
               addToBatch(batch, listId, item.ref, value);
               counter++;
@@ -101,8 +96,8 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
           } else if (type === 'Multiple fields') {
             var containsArray = false;
             var name = '';
-            for (let field of fields) {
-              let value = item.data()[field];
+            for (let entityIndexField of entityIndexFields.docs) {
+              let value = item.data()[entityIndexField.data().value];
               if (Array.isArray(value)) {
                 containsArray = true;
                 break;
@@ -119,7 +114,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
               }
             }
           } else if (type === 'Array of values') {
-            let values = item.data()[fields[0]];
+            let values = item.data()[entityIndexFields.docs[0].data().value];
             if (Array.isArray(values)) {
               for (let value of values) {
                 addToBatch(batch, listId, item.ref, value);
@@ -154,4 +149,28 @@ function addToBatch(batch:any, listId:any, ref:any, name:string)
         't': FieldValue.serverTimestamp(),
         ...gramCounterBool(name, 2),
       });
+}
+
+export async function deleteLargeColByQuery(query: Query) {
+  let batch = db.batch();
+  let counter = 0;
+
+  let chunk: QuerySnapshot;
+  do {
+    chunk = await query.select().limit(1000).get();
+    for (const l of chunk.docs) {
+      batch.delete(l.ref);
+      counter++;
+
+      if (counter > 400) {
+        await batch.commit();
+        batch = db.batch();
+        counter = 0;
+      }
+    }
+    await batch.commit();
+    batch = db.batch();
+    counter = 0;
+
+  } while (chunk.size > 0)
 }
