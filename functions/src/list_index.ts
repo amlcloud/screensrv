@@ -64,7 +64,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
 .onRequest(async (request, res) => {
   cors(request, res,async () => {
     const listId:string=request.query.list as string;
-    deleteLargeColByQuery(db.collection('index').where('listId', '==', listId));
+    await deleteLargeColByQuery(db.collection('index').where('listId', '==', listId));
     let counter = 0;
     let batch = db.batch();
     const reference = await db.collection('list').doc(listId);
