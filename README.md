@@ -27,6 +27,26 @@
   /user/{uid}/search/{searchId}/result
     contains an individual search results, i.e. items that were found when the search was executed.
 
+## API
+
+This is the API we expose to the clients (customers) that they can use via request (HTTPS) calls.
+
+GetSanctionLists
+  returns the list of JSON objects containing meta info about all sanction lists available on the system.
+
+GetSanctionListEntities
+  returns the list of items (in JSON) of the sanction list.
+
+ScreenName
+  returns screening results based on the fuzzy search matching on the entire index (all sanctions lists) with the given precision. If precision is 1 it will return only exactly matching records.
+  
+  input: search target string, precision (0.9-1)
+  
+ScreenPerson (TBD)
+  returns screening results based on the fuzzy search matching on the entire index (all sanctions lists) with the given precision. If precision is 1 it will return only exactly matching records.
+  
+  input: search target string, precision (0.9-1)
+  optional: DOB, nationality
 
 ## Deployment
 run firebase deploy --only functions
