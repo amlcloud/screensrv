@@ -37,10 +37,6 @@ export { dgtresor_gouv_fr__national_freeze_registry } from "./fetch";
 // // export { ecfr_gov__unverified } from "./fetch";
 // // export { dgtresor_gouv_fr__national_freeze_registry } from "./fetch";
 // export { gc_ca__consol_autonomous_sanctions } from "./fetch";
-// export {  } from "./fetch";
-// export {  } from "./fetch";
-// export {  } from "./fetch";
-// export {  } from "./fetch";
-// export {  } from "./fetch";
-// export {  } from "./fetch";
-// export {  } from "./fetch";
+
+
+export { GetSanctionLists } from "./GetSanctionLists";
