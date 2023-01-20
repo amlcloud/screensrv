@@ -91,10 +91,11 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
             if (type === 'Single field') {
               let value = item.data()[entityIndexFields.docs[0].data().value];
               if (!Array.isArray(value)) {
-                addToBatch(batch, listId, item.ref, value, statusRef, indexMap);
+                addToBatch(batch, listId, item.ref, value);
                 counter++;
                 indexMap.set(item.ref, true);
                 if (counter > 490) {
+                  statusRef.update({count: [...indexMap.keys()].length});
                   await batch.commit();
                   batch = db.batch();
                   counter = 0;
@@ -112,10 +113,11 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
                 name += (name.length > 0 ? ' ' : '') + value;
               }
               if (!containsArray) {
-                addToBatch(batch, listId, item.ref, name, statusRef, indexMap);
+                addToBatch(batch, listId, item.ref, name);
                 counter++;
                 indexMap.set(item.ref, true);
                 if (counter > 490) {
+                  statusRef.update({count: [...indexMap.keys()].length});
                   await batch.commit();
                   batch = db.batch();
                   counter = 0;
@@ -125,10 +127,11 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
               let values = item.data()[entityIndexFields.docs[0].data().value];
               if (Array.isArray(values)) {
                 for (let value of values) {
-                  addToBatch(batch, listId, item.ref, value, statusRef, indexMap);
+                  addToBatch(batch, listId, item.ref, value);
                   counter++;
                   indexMap.set(item.ref, true);
                   if (counter > 490) {
+                    statusRef.update({count: [...indexMap.keys()].length});
                     await batch.commit();
                     batch = db.batch();
                     counter = 0;
@@ -139,6 +142,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
           }
         }
       }
+      statusRef.update({count: [...indexMap.keys()].length});
       await batch.commit();
     }
     res.send(`indexed list ${request.query.list}`);
@@ -146,7 +150,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
 });
 
 
-function addToBatch(batch:any, listId:any, ref:any, name:string, statusRef:DocumentReference, indexMap:Map<DocumentReference, boolean>)
+function addToBatch(batch:any, listId:any, ref:any, name:string)
 {
   batch.set(
     db
@@ -159,7 +163,6 @@ function addToBatch(batch:any, listId:any, ref:any, name:string, statusRef:Docum
         't': FieldValue.serverTimestamp(),
         ...gramCounterBool(name, 2),
       });
-  statusRef.update({count: [...indexMap.keys()].length});
 }
 
 export async function deleteLargeColByQuery(query: Query) {
