@@ -1,7 +1,9 @@
 import * as functions from "firebase-functions";
 import { db } from "./index";
 
-export const SanctionsList = functions.https.onRequest(async (req, res) => {
+// returns the list of JSON objects containing meta info about all sanction lists available on the system.
+
+export const GetSanctionsList = functions.https.onRequest(async (req, res) => {
 
     const listDoc =  db.collection('list');
 
