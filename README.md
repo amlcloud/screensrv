@@ -35,7 +35,8 @@ GetSanctionLists
   returns the list of JSON objects containing meta info about all sanction lists available on the system.
 
 GetSanctionListEntities
-  returns the list of items (in JSON) of the sanction list.
+  returns the list of items (in JSON) of the specified sanction list.
+  input: Id of sanction list.
 
 ScreenName
   returns screening results based on the fuzzy search matching on the entire index (all sanctions lists) with the given precision. If precision is 1 it will return only exactly matching records.
