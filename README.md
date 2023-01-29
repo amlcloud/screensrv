@@ -34,13 +34,36 @@ This is the `API` we expose to the clients (customers) that they can use via req
 - **GetSanctionLists**
   - returns the list of `JSON` objects containing meta info about all sanction lists available on the system.
 
+```bash
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionLists"
+```
+
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionLists
+
 - **GetSanctionListEntities**
-  - returns the list of items (in `JSON`) of the sanction list.
+  - returns the list of items (in `JSON`) of the sanction list in alphabetical order by the name of the entity (different for each list, please refer to screener UI).
+
+  - input: ...
+
+
+```bash
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionListEntities?list=dfat.gov.au"
+```
+
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionListEntities?list=dfat.gov.au
+
 
 - **ScreenName**
   - returns screening results based on the fuzzy search matching on the entire index (all sanctions lists) with the given precision. If precision is 1 it will return only exactly matching records.
   
   - input: search target string, precision (0.9-1)
+
+```bash
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/ScreenName?..."
+```
+
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/ScreenName...
+
   
 - **ScreenPerson (TBD)**
   - returns screening results based on the fuzzy search matching on the entire index (all sanctions lists) with the given precision. If precision is 1 it will return only exactly matching records.
