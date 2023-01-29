@@ -77,7 +77,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
       const items = await reference.collection('item').get();
       let statusRef = await statusColRef.add({listId: listId, count: 0, total: items.size});
       for (let indexConfig of indexConfigs.docs) {
-        let entityIndexFields = await indexConfig.ref.collection('entityIndexFields').get();
+        let entityIndexFields = await indexConfig.ref.collection('entityIndexFields').orderBy('createdTimestamp').get();
         var valid = true;
         for (let entityIndexField of entityIndexFields.docs) {
           if (!entityIndexField.data().valid) {
@@ -91,7 +91,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
             if (type === 'Single field') {
               let value = item.data()[entityIndexFields.docs[0].data().value];
               if (!Array.isArray(value)) {
-                addToBatch(batch, listId, item.ref, value);
+                addToBatch(batch, listId, type, item.ref, value);
                 counter++;
                 indexMap.set(item.ref, true);
                 if (counter > 490) {
@@ -113,7 +113,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
                 name += (name.length > 0 ? ' ' : '') + value;
               }
               if (!containsArray) {
-                addToBatch(batch, listId, item.ref, name);
+                addToBatch(batch, listId, type, item.ref, name);
                 counter++;
                 indexMap.set(item.ref, true);
                 if (counter > 490) {
@@ -127,7 +127,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
               let values = item.data()[entityIndexFields.docs[0].data().value];
               if (Array.isArray(values)) {
                 for (let value of values) {
-                  addToBatch(batch, listId, item.ref, value);
+                  addToBatch(batch, listId, type, item.ref, value);
                   counter++;
                   indexMap.set(item.ref, true);
                   if (counter > 490) {
@@ -150,7 +150,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
 });
 
 
-function addToBatch(batch:any, listId:any, ref:any, name:string)
+function addToBatch(batch:any, listId:any, type:string, ref:any, name:string)
 {
   batch.set(
     db
@@ -159,6 +159,7 @@ function addToBatch(batch:any, listId:any, ref:any, name:string)
       ,{
         'ref': ref,
         'listId': listId,
+        'type': type,
         'target': name,
         't': FieldValue.serverTimestamp(),
         ...gramCounterBool(name, 2),
