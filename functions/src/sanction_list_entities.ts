@@ -3,7 +3,7 @@ import { db } from "./index";
 
 //returns the list of items (in JSON) of the sanction list.
 export const GetSanctionsListEntities = functions
-  .runWith({ timeoutSeconds: 120, memory: "512MB" })
+  .runWith({ timeoutSeconds: 60, memory: "512MB" })
   .https.onRequest(async (req, res) => {
     // Checking if request method was POST or GET and if item was provided
     if (req.method == "GET") {
