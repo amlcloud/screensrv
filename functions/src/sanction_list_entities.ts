@@ -1,6 +1,8 @@
 import * as functions from "firebase-functions";
 import { db } from "./index";
 
+import { StorageWriteList} from './storage'
+
 //returns the list of items (in JSON) of the sanction list.
 export const GetSanctionsListEntities = functions
   .runWith({ timeoutSeconds: 60, memory: "512MB" })
@@ -14,6 +16,11 @@ export const GetSanctionsListEntities = functions
     if (!list) {
       res.status(400).send('Parameter "list" - name of list was not provided');
       return;
+    }
+    
+    if(list === 'api.trade.gov'){
+      console.log('writing file')
+      StorageWriteList(list)
     }
 
     //Checking if user provided correct item
@@ -32,8 +39,6 @@ export const GetSanctionsListEntities = functions
           removeNullProperties(obj[propName]);
         }
       }
-      // Progress tracking
-      console.log('null values removed')
       return obj;
     }
 
@@ -44,7 +49,6 @@ export const GetSanctionsListEntities = functions
           delete obj[propName];
         }
       }
-      console.log('empty arrays removed')
       return obj;
     }
 
