@@ -35,10 +35,10 @@ This is the `API` we expose to the clients (customers) that they can use via req
   - returns the list of `JSON` objects containing meta info about all sanction lists available on the system.
 
 ```bash
-curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionLists"
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionsLists"
 ```
 
-or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionLists
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionsLists
 
 - **GetSanctionsListEntities**
   - returns the list of items (in `JSON`) of the sanction list in alphabetical order by the name of the entity (different for each list, please refer to screener UI).
@@ -47,10 +47,10 @@ or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanction
 
 
 ```bash
-curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionListEntities?list=dfat.gov.au"
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionsListEntities?list=dfat.gov.au"
 ```
 
-or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionListEntities?list=dfat.gov.au
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionsListEntities?list=dfat.gov.au
 
 - **GetSanctionsListItemEntity**
   - returns all data of specific item (in `JSON`) of the specific sanction list
@@ -59,10 +59,10 @@ or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanction
 
 
 ```bash
-curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionListEntities?list=dfat.gov.au&item=01ubEnwq38cuhIWvvd0E"
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionsListItemEntities?list=dfat.gov.au&item=01ubEnwq38cuhIWvvd0E"
 ```
 
-or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionListEntities?list=dfat.gov.au&item=01ubEnwq38cuhIWvvd0E
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanctionsListItemEntities?list=dfat.gov.au&item=01ubEnwq38cuhIWvvd0E
 
 
 

@@ -9,8 +9,9 @@ type Query = admin.firestore.Query;
 export const onSearchCreate = functions.firestore.document
   ('user/{userId}/search/{searchId}').onCreate(
     async (document: DocumentSnapshot, context) => {
+      let userId = document.ref.path.split('/')[1]
 
-      await _screen(document.id, 2, 0.9);
+      await userTriggeredScreen(document.id, 2, 0.9,userId);
 
     });
 
@@ -27,7 +28,7 @@ export const screen = functions.runWith({timeoutSeconds:540}).https
     return;
   }
   
-  await _screen(searchTarget, 2, precision===undefined?0.9:precision);
+  await userTriggeredScreen(searchTarget, 2, precision===undefined?0.9:precision);
   if(resultDoc.exists) {
     res.send(resultDoc.data());
     return;
@@ -35,7 +36,7 @@ export const screen = functions.runWith({timeoutSeconds:540}).https
 });
 
 
-export async function _screen(name: string, gramSize: number, pres: number): Promise<number> {
+export async function userTriggeredScreen(name: string, gramSize: number, pres: number,  userId : string = '' ): Promise<number> {
   console.log(`search for ${name}`);
 
 
@@ -100,12 +101,23 @@ export async function _screen(name: string, gramSize: number, pres: number): Pro
 
   //:QuerySnapshot
   //let foundQS;
-  await db.collection('search').doc(name)
+  if ( userId = ''){
+
+    await db.collection('search').doc(name)
+      .set({
+        'resultsCount': resultsCount,
+        't': FieldValue.serverTimestamp()
+      })
+
+  }else{
+
+    await db.collection('user').doc(userId).collection('search').doc(name)
     .set({
       'resultsCount': resultsCount,
       't': FieldValue.serverTimestamp()
     })
-
+  }
+  
   for (let r of res) {
     //console.log(`${r.id} returned size: ${r.size}`);
     for (let f of r.docs) {
@@ -115,12 +127,22 @@ export async function _screen(name: string, gramSize: number, pres: number): Pro
       // let existingSearchDoc=searchQS.docs.find((d) => d.data()['$']===f.data()['$'] );
       // if(existingSearchDoc===undefined) 
       {
-        await db.collection('search').doc(name).collection('res').doc(f.id).set({
-          "target": f.data()['target'],
-          "ref": f.data()['ref'],
-          "levScore": matchLevenshtein(f.data()['target'], name),
-          "gramScore": matchGram(f.data()['target'], name, 2)
-        });
+        if(userId=''){
+          await db.collection('search').doc(name).collection('res').doc(f.id).set({
+            "target": f.data()['target'],
+            "ref": f.data()['ref'],
+            "levScore": matchLevenshtein(f.data()['target'], name),
+            "gramScore": matchGram(f.data()['target'], name, 2)
+          });
+        }else{
+          await db.collection('user').doc(userId).collection('search').doc(name).collection('res').doc(f.id).set({
+            "target": f.data()['target'],
+            "ref": f.data()['ref'],
+            "levScore": matchLevenshtein(f.data()['target'], name),
+            "gramScore": matchGram(f.data()['target'], name, 2)
+          });
+        }
+        
       }
 
 
