@@ -18,14 +18,34 @@ export async function saveList(jsonArray: any[], listId: string, fieldId: string
     console.log("hash not changed, skip update");
     return;
   }
-  await docRef.set(
-    {
-      "lastUpdateTime": FieldValue.serverTimestamp(),
-      "lastUpdateHash": hash,
-    }
-  );
-  await saveDocuments(jsonArray, docRef.collection("item"), fieldId);
+  try {
+    await db.runTransaction(async (t) => {
+      await t.set(docRef, {
+        "lastUpdateTime": FieldValue.serverTimestamp(),
+        "lastUpdateHash": hash,
+      });
+      for (let item of jsonArray) {
+        await t.set(docRef.collection('item').doc(), item);
+      }
+      let dict: any = {};
+      for (let item of jsonArray) {
+          for (let key in item) {
+              if (key in dict) {
+                  dict[key]['count'] = dict[key]['count'] + 1;
+              } else {
+                  dict[key] = {type: Array.isArray(item[key]) ? 'array' : typeof(item[key]), count: 1};
+              }
+          }
+      }
+      for (let key in dict) {
+        await t.set(docRef.collection("fields").doc(key), dict[key]);
+      }
+    });
+  } catch (e) {
+    console.log('saveList failure:', e);
+  }
 }
+
 /**
  * Saves array of JSON objects into documents with IDs specified in one of the fields
  * of JSON object.
