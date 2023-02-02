@@ -101,7 +101,7 @@ export async function userTriggeredScreen(name: string, gramSize: number, pres: 
 
   //:QuerySnapshot
   //let foundQS;
-  if ( userId = ''){
+  if ( userId === ''){
 
     await db.collection('search').doc(name)
       .set({
@@ -117,7 +117,7 @@ export async function userTriggeredScreen(name: string, gramSize: number, pres: 
       't': FieldValue.serverTimestamp()
     })
   }
-  
+
   for (let r of res) {
     //console.log(`${r.id} returned size: ${r.size}`);
     for (let f of r.docs) {
@@ -127,7 +127,7 @@ export async function userTriggeredScreen(name: string, gramSize: number, pres: 
       // let existingSearchDoc=searchQS.docs.find((d) => d.data()['$']===f.data()['$'] );
       // if(existingSearchDoc===undefined) 
       {
-        if(userId=''){
+        if(userId ===''){
           await db.collection('search').doc(name).collection('res').doc(f.id).set({
             "target": f.data()['target'],
             "ref": f.data()['ref'],
