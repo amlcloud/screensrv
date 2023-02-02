@@ -64,12 +64,22 @@ curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-96
 
 or in browser: https://us-central1-screener-9631e.cloudfunctions.net/ScreenName...
 
+- **FindName**
+  - returns exact search matches across all lists for the name provided.  
+  - input: search target string
+
+```bash
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/FindName?..."
+```
+
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/FindName
+
   
-- **ScreenPerson (TBD)**
+<!-- - **ScreenPerson (TBD)**
   - returns screening results based on the fuzzy search matching on the entire index (all sanctions lists) with the given precision. If precision is 1 it will return only exactly matching records.
   
   - input: search target string, precision (0.9-1)
-  - optional: `DOB`, `nationality`
+  - optional: `DOB`, `nationality` -->
 
 ## **Deployment**
 ```bash
