@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import { _screen } from "./screen";
+import { userTriggeredScreen } from "./screen";
 import { fuzzy_search } from "./fuzzy_search";
 
 /**
@@ -29,6 +29,6 @@ export const findName = functions.https.onRequest(async (req: any, res: any) => 
  */
 export const screen = functions.https.onRequest(async (req: any, res: any) => {
   const { name, gramSize, pres} = req.query
-  const resultsCount = await _screen(name as string, gramSize as number, pres as number);
+  const resultsCount = await userTriggeredScreen(name as string, gramSize as number, pres as number);
   res.send(`screening results count: ${resultsCount.toString()} from query ${name}!`);
 });
