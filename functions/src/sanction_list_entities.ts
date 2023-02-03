@@ -1,7 +1,6 @@
 import * as functions from "firebase-functions";
 import { db } from "./index";
 
-import { StorageWriteList} from './storage'
 
 //returns the list of items (in JSON) of the sanction list.
 export const GetSanctionsListEntities = functions
@@ -18,10 +17,6 @@ export const GetSanctionsListEntities = functions
       return;
     }
     
-    if(list === 'api.trade.gov'){
-      console.log('writing file')
-      StorageWriteList(list)
-    }
 
     //Checking if user provided correct item
     const listDoc = await db.collection("list").doc(list).get();
