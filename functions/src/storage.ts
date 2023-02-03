@@ -1,49 +1,45 @@
 import { db } from "./index";
 import { storage} from 'firebase-admin';
-import { writeFileSync } from "fs";
+import * as functions from "firebase-functions";
 
 
-export function StorageWriteList(list: string){
+export const StorageWriteList = functions.runWith({timeoutSeconds: 60, memory: "1GB"}).https.onRequest(async (req,res) => {
 
-    const documentReference = db.collection('list').doc(list).collection('item');
-
-    documentReference.get().then((doc) => {
-        const documentData = doc.docs.map((d) => d.data());
-
-        // Convert the document data to a JSON string
-        const jsonString = JSON.stringify(documentData);
-
-        // Write the JSON string to a file
-        writeFileSync('/tmp/document.json', jsonString);
-
-        // Upload the file to Firebase Cloud Storage
-        try{
-            // Get bucket
-            var bucket = storage().bucket();
-            console.log('bucket created')
-        }catch(err){
-            console.log('bucket creation eror:  '+ err)
-            return
-        }
-
-        try{
-            // Create a file
-            var file = bucket.file('/tmp/document.json');
-            console.log('file created')
-        }catch(err){
-            console.log('file creation eror:  '+ err)
-            return
-        }
-        
-        file.createWriteStream({
-        metadata: {
-            contentType: 'application/json',
-        },
-        }).end(jsonString);
-    }).catch((error) => {
-        console.error('Error getting document:', error);
+    if (req.method == "GET") {
+        var list: any = req.query.list;
+      } else if (req.method == "POST") {
+        var list = req.body.list;
+      }
+      if (!list) {
+        res.status(400).send('Parameter "list" - name of list was not provided');
         return;
-    });
-    console.log('file created')
-    return
-}
+      }
+
+        var document = await db.collection('list').doc(list).collection('item').get();
+
+        document.docs.map((d) => d.data());
+
+
+    // Convert the document data to a JSON string
+
+    try{
+        var jsonString = JSON.stringify(document);
+
+        var bucket = storage().bucket();
+
+        var file = bucket.file(`${list}.json`);
+        try{
+        file.createWriteStream({
+            metadata: {
+                contentType: 'application/json',
+            },
+            }).end(jsonString);
+        }catch(err){
+            res.status(500).send(err)
+            return
+        }
+        res.status(200).send('Ok')
+    }catch(err){
+        res.status(500).send(err)
+    }
+})
