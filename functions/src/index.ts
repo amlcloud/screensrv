@@ -13,6 +13,7 @@ export { getListDetails } from './list';
 export {GetSanctionsList} from './sanctions_list'
 export {GetSanctionsListEntities} from './sanction_list_entities'
 export {GetSanctionsListItemEntity} from './sanction_list_item_entity'
+export {findName} from './findName'
 
 export { index_list }  from './list_index';
 export { index_list2 }  from './list_index';
