@@ -18,6 +18,7 @@ export { index_list }  from './list_index';
 export { index_list2 }  from './list_index';
 export { test }  from './list_index';
 export { screen }  from './screen';
+export {StorageWriteList} from './storage'
 
 export { dfat_gov_au__consolidated_list } from "./fetch";
 // export { gov_uk__financial_sanctions_list } from "./fetch";
