@@ -8,6 +8,32 @@ export function safeString(unsafe: string):string {
   return unsafe.replace(/\//gi, "_");
 }
 
+export async function saveFields(jsonArray: any[], listId: string) {
+  let dict: any = {};
+  for (let item of jsonArray) {
+    for (let key in item) {
+      if (key in dict) {
+        dict[key]['count'] = dict[key]['count'] + 1;
+      } else {
+        dict[key] = {type: Array.isArray(item[key]) ? 'array' : typeof(item[key]), count: 1};
+      }
+    }
+  }
+  let colRef: CollectionReference = db.collection('list').doc(listId).collection('fields');
+  let counter = 0;
+  let batch = db.batch();
+  for (let key in dict) {
+    batch.set(colRef.doc(key), dict[key]);
+    counter++;
+    if (counter > FIRESTORE_WRITE_BATCH_SIZE) {
+      await batch.commit();
+      batch = db.batch();
+      counter = 0;
+    }
+  }
+  await batch.commit();
+}
+
 // Saving list
 export async function saveList(jsonArray: any[], listId: string, fieldId: string) {
   let docRef: DocumentReference = db.collection("list").doc(listId);
@@ -25,7 +51,9 @@ export async function saveList(jsonArray: any[], listId: string, fieldId: string
     }
   );
   await saveDocuments(jsonArray, docRef.collection("item"), fieldId);
+  await saveFields(jsonArray, listId);
 }
+
 /**
  * Saves array of JSON objects into documents with IDs specified in one of the fields
  * of JSON object.
