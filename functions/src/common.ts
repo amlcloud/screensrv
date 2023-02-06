@@ -55,7 +55,6 @@ export async function saveList(
 	console.dir(`fetched list document with hash: ${hash}`);
 	let doc = await docRef.get();
 	if (doc.exists && doc.data()?.["lastUpdateHash"] === hash) {
-		await saveFields(jsonArray, listId);
 		console.log("hash not changed, skip update");
 		return;
 	}
