@@ -19,7 +19,7 @@ export const onSearchCreate = functions.firestore.document
 export const screen = functions.runWith({timeoutSeconds:540}).https
 .onRequest(async (request, res) => {
   const searchTarget:string=request.query.target as string;
-  const precision:number=parseFloat(request.query.precision as string);
+  //const precision:number=parseFloat(request.query.precision as string);
 
   const resultDoc=await db.collection('search').doc(searchTarget).get();
 
@@ -27,8 +27,8 @@ export const screen = functions.runWith({timeoutSeconds:540}).https
     res.send(resultDoc.data());
     return;
   }
-  
-  await userTriggeredScreen(searchTarget, 2, precision===undefined?0.9:precision);
+  throw new Error('This have to be fixed');
+  //await userTriggeredScreen(searchTarget, 2, precision===undefined?0.9:precision);
   if(resultDoc.exists) {
     res.send(resultDoc.data());
     return;
@@ -36,7 +36,7 @@ export const screen = functions.runWith({timeoutSeconds:540}).https
 });
 
 
-export async function userTriggeredScreen(name: string, gramSize: number, pres: number,  userId : string = '' ): Promise<number> {
+export async function userTriggeredScreen(name: string, gramSize: number, pres: number,  userId : string ): Promise<number> {
   console.log(`search for ${name}`);
 
 
@@ -99,24 +99,12 @@ export async function userTriggeredScreen(name: string, gramSize: number, pres: 
 
   const resultsCount = res.map((snap) => snap.size).reduce((prev, snap) => prev + snap)
 
-  //:QuerySnapshot
-  //let foundQS;
-  if ( userId === ''){
 
-    await db.collection('search').doc(name)
-      .set({
-        'resultsCount': resultsCount,
-        't': FieldValue.serverTimestamp()
-      })
-
-  }else{
-
-    await db.collection('user').doc(userId).collection('search').doc(name)
-    .set({
-      'resultsCount': resultsCount,
-      't': FieldValue.serverTimestamp()
-    })
-  }
+  await db.collection('user').doc(userId).collection('search').doc(name)
+  .update({
+    'resultsCount': resultsCount,
+    'timeCompleted': FieldValue.serverTimestamp()
+  })
 
   for (let r of res) {
     //console.log(`${r.id} returned size: ${r.size}`);
@@ -127,6 +115,8 @@ export async function userTriggeredScreen(name: string, gramSize: number, pres: 
       // let existingSearchDoc=searchQS.docs.find((d) => d.data()['$']===f.data()['$'] );
       // if(existingSearchDoc===undefined) 
       {
+
+        //FIXIT: We should abandon global search collection so let's remove this code:
         if(userId ===''){
           await db.collection('search').doc(name).collection('res').doc(f.id).set({
             "target": f.data()['target'],
