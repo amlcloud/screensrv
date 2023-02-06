@@ -8,6 +8,32 @@ export function safeString(unsafe: string):string {
   return unsafe.replace(/\//gi, "_");
 }
 
+export async function saveFields(jsonArray: any[], listId: string) {
+  let dict: any = {};
+  for (let item of jsonArray) {
+    for (let key in item) {
+      if (key in dict) {
+        dict[key]['count'] = dict[key]['count'] + 1;
+      } else {
+        dict[key] = {type: Array.isArray(item[key]) ? 'array' : typeof(item[key]), count: 1};
+      }
+    }
+  }
+  let colRef: CollectionReference = db.collection('list').doc(listId).collection('fields');
+  let counter = 0;
+  let batch = db.batch();
+  for (let key in dict) {
+    batch.set(colRef.doc(key), dict[key]);
+    counter++;
+    if (counter > FIRESTORE_WRITE_BATCH_SIZE) {
+      await batch.commit();
+      batch = db.batch();
+      counter = 0;
+    }
+  }
+  await batch.commit();
+}
+
 // Saving list
 export async function saveList(jsonArray: any[], listId: string, fieldId: string) {
   let docRef: DocumentReference = db.collection("list").doc(listId);
@@ -18,32 +44,14 @@ export async function saveList(jsonArray: any[], listId: string, fieldId: string
     console.log("hash not changed, skip update");
     return;
   }
-  try {
-    await db.runTransaction(async (t) => {
-      await t.set(docRef, {
-        "lastUpdateTime": FieldValue.serverTimestamp(),
-        "lastUpdateHash": hash,
-      });
-      for (let item of jsonArray) {
-        await t.set(docRef.collection('item').doc(), item);
-      }
-      let dict: any = {};
-      for (let item of jsonArray) {
-          for (let key in item) {
-              if (key in dict) {
-                  dict[key]['count'] = dict[key]['count'] + 1;
-              } else {
-                  dict[key] = {type: Array.isArray(item[key]) ? 'array' : typeof(item[key]), count: 1};
-              }
-          }
-      }
-      for (let key in dict) {
-        await t.set(docRef.collection("fields").doc(key), dict[key]);
-      }
-    });
-  } catch (e) {
-    console.log('saveList failure:', e);
-  }
+  await docRef.set(
+    {
+      "lastUpdateTime": FieldValue.serverTimestamp(),
+      "lastUpdateHash": hash,
+    }
+  );
+  await saveDocuments(jsonArray, docRef.collection("item"), fieldId);
+  await saveFields(jsonArray, listId);
 }
 
 /**
