@@ -1,11 +1,17 @@
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import {getStorage} from 'firebase/storage'
 
 //const serviceAccount = require("../screener-9631e-firebase-adminsdk-ipwv7-84336a16ac.json");
 
-initializeApp();//{ credential: cert(serviceAccount) });
+initializeApp({
+    // Im not sure that we need to add all the fields or just this one so im not deploying it now.
+    //  Oleksii 
+    storageBucket: "screener-9631e.appspot.com"
+});//{ credential: cert(serviceAccount) });
 
 export var db = getFirestore();
+export var storage = getStorage();
 
 export { onSearchCreate } from './screen';
 export { getList } from './list';

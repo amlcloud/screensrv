@@ -1,6 +1,7 @@
-import { db } from "./index";
-import { storage} from 'firebase-admin';
+import { db,storage } from "./index";
 import * as functions from "firebase-functions";
+import {uploadString,ref, StorageReference} from 'firebase/storage' 
+
 
 
 export const StorageWriteList = functions.runWith({timeoutSeconds: 60, memory: "1GB"}).https.onRequest(async (req,res) => {
@@ -25,20 +26,18 @@ export const StorageWriteList = functions.runWith({timeoutSeconds: 60, memory: "
     try{
         var jsonString = JSON.stringify(document);
 
-        var bucket = storage().bucket();
+        var storageRef : StorageReference = ref(storage, 'lists');
 
-        var file = bucket.file(`${list}.json`);
+        const metadata = {
+          contentType: 'application/json',
+        }
         try{
-        file.createWriteStream({
-            metadata: {
-                contentType: 'application/json',
-            },
-            }).end(jsonString);
+        await uploadString(ref(storageRef, `${list}.json`),jsonString,'base64',metadata).then(
+          () => res.status(200).send('OK'))
         }catch(err){
             res.status(500).send(err)
             return
         }
-        res.status(200).send('Ok')
     }catch(err){
         res.status(500).send(err)
     }
