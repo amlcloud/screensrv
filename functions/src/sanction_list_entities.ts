@@ -46,7 +46,7 @@ export const GetSanctionsListEntities = functions
     }
 
     //Sending response
-    var responce = await db.collection("list").doc(list).collection("item").limit(20000).get();
+    var responce = await db.collection("list").doc(list).collection("item").limit(19000).get();
     console.log('data is prepared')
 
     try{
