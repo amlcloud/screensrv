@@ -46,21 +46,8 @@ export const GetSanctionsListEntities = functions
     }
 
     //Sending response
-    var responce = await db.collection("list").doc(list).collection("item").get();
+    var responce = await db.collection("list").doc(list).collection("item").limit(20000).get();
     console.log('data is prepared')
-    let len = responce.docs.length
-    console.log(len)
-
-    if(len > 20000){
-      responce = await db.collection("list").doc(list).collection("item").limit(20000).get()
-      try{
-        res.status(200).send(responce.docs.map((d) =>removeEmptyArrays(removeNullProperties(d.data()))));
-        return
-      }catch(err){
-        res.status(500).send(err)
-        return
-      }
-    }
 
     try{
       res.status(200).send(responce.docs.map((d) =>removeEmptyArrays(removeNullProperties(d.data()))));
