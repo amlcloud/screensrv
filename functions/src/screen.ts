@@ -16,24 +16,6 @@ export const onSearchCreate = functions.firestore.document
     });
 
 
-export const screen = functions.runWith({timeoutSeconds:540}).https
-.onRequest(async (request, res) => {
-  const searchTarget:string=request.query.target as string;
-  //const precision:number=parseFloat(request.query.precision as string);
-
-  const resultDoc=await db.collection('search').doc(searchTarget).get();
-
-  if(resultDoc.exists) {
-    res.send(resultDoc.data());
-    return;
-  }
-  throw new Error('This have to be fixed');
-  //await userTriggeredScreen(searchTarget, 2, precision===undefined?0.9:precision);
-  if(resultDoc.exists) {
-    res.send(resultDoc.data());
-    return;
-  } else res.send('something went wrong');
-});
 
 
 export async function userTriggeredScreen(name: string, gramSize: number, pres: number,  userId : string ): Promise<number> {
@@ -116,22 +98,12 @@ export async function userTriggeredScreen(name: string, gramSize: number, pres: 
       // if(existingSearchDoc===undefined) 
       {
 
-        //FIXIT: We should abandon global search collection so let's remove this code:
-        if(userId ===''){
-          await db.collection('search').doc(name).collection('res').doc(f.id).set({
-            "target": f.data()['target'],
-            "ref": f.data()['ref'],
-            "levScore": matchLevenshtein(f.data()['target'], name),
-            "gramScore": matchGram(f.data()['target'], name, 2)
-          });
-        }else{
           await db.collection('user').doc(userId).collection('search').doc(name).collection('res').doc(f.id).set({
             "target": f.data()['target'],
             "ref": f.data()['ref'],
             "levScore": matchLevenshtein(f.data()['target'], name),
             "gramScore": matchGram(f.data()['target'], name, 2)
           });
-        }
         
       }
 
