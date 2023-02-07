@@ -75,7 +75,7 @@ or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanction
 curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/ScreenName?name=AnyName"
 ```
 
-or in browser: https://us-central1-screener-9631e.cloudfunctions.net/ScreenName?name=AnyName...
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/ScreenName?name=AnyName
 
 - **FindName**
   - returns exact search matches across all lists for the name provided.  
