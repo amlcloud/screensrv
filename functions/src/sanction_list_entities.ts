@@ -51,7 +51,7 @@ export const GetSanctionsListEntities = functions
 			.collection("list")
 			.doc(list)
 			.collection("item")
-			.limit(20000)
+			.limit(19000)
 			.get();
 		console.log("data is prepared");
 
