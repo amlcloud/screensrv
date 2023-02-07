@@ -26,12 +26,22 @@ export async function saveFields(jsonArray: any[], listId: string) {
 			}
 		}
 	}
+	let batch = db.batch();
+	let counter = 0;
 	let colRef: CollectionReference = db
 		.collection("list")
 		.doc(listId)
 		.collection("fields");
-	let counter = 0;
-	let batch = db.batch();
+	let fields = await colRef.listDocuments();
+	for (let i = 0; i < fields.length; i++) {
+		batch.delete(fields[i]);
+		counter++;
+		if (counter > FIRESTORE_WRITE_BATCH_SIZE) {
+			await batch.commit();
+			batch = db.batch();
+			counter = 0;
+		}
+	}
 	for (let key in dict) {
 		batch.set(colRef.doc(key), dict[key]);
 		counter++;
