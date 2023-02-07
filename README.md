@@ -69,23 +69,23 @@ or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanction
 - **ScreenName**
   - returns screening results based on the fuzzy search matching on the entire index (all sanctions lists) with the given precision. If precision is 1 it will return only exactly matching records.
   
-  - input: search target string, precision (0.9-1)
+  - input: name: string, precision (0.9-1)
 
 ```bash
-curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/ScreenName?..."
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/ScreenName?name=AnyName"
 ```
 
-or in browser: https://us-central1-screener-9631e.cloudfunctions.net/ScreenName...
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/ScreenName?name=AnyName...
 
 - **FindName**
   - returns exact search matches across all lists for the name provided.  
-  - input: search target string
+  - input:  name: string
 
 ```bash
-curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/FindName?..."
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/FindName?name=AnyName"
 ```
 
-or in browser: https://us-central1-screener-9631e.cloudfunctions.net/FindName
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/FindName?name=AnyName
 
   
 <!-- - **ScreenPerson (TBD)**
