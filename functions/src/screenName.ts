@@ -2,98 +2,125 @@ import { DocumentData } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 import { db } from "./index";
 
+export const ScreenName = functions.https.onRequest(async (req, res) => {
+	//getting variables from request and checking them
+	if (req.method == "GET") {
+		var name: any = req.query.name as string;
+		var precision: any = req.query.precision;
+	} else if (req.method == "POST") {
+		var name: any = req.body.name as string;
+		var precision = req.body.precision;
+	}
+	if (!name) {
+		res.status(400).send('Parameter "name"  was not provided');
+		return;
+	} else if (!precision || precision < 0.9 || precision > 1) {
+		res.status(400).send('Parameter 0.9 < "precison" < 1');
+		return;
+	}
+	console.log(`preparing search for ${name} with ${precision} precision`);
 
-export const ScreenName =  functions.https.onRequest( async (req,res) => {
-    //getting variables from request and checking them 
-    if(req.method == 'GET'){
-        var name: any = req.query.name as string
-        var precision: any = req.query.precision
-    }else if(req.method == 'POST'){
-        var name: any = req.body.name as string
-        var precision = req.body.precision
-    }
-    if(!name){
-        res.status(400).send('Parameter "name"  was not provided')
-        return
-    }else if (!precision || precision <  0.9 || precision > 1){
-        res.status(400).send('Parameter 0.9 < "precison" < 1')
-        return
-    }
-    console.log(`searching for ${name} with ${precision} precision`)
+	// Preparing data for search
+	let target = "-" + name.toLowerCase().replace(" ", "") + "-";
+	let chunks: string[] = [];
+	for (let i = 0; i < target.length - 1; i++) {
+		chunks.push(target[i] + target[i + 1]);
+	}
 
-    let target = '-'+name.toLowerCase().replace(' ','')+'-'
-    let chunks : string[] = []
-    for(let i = 0; i < target.length - 1; i++){
-        chunks.push(target[i] + target[i+1])
-    }
-    let target_points : number = Math.floor(chunks.length * precision);
-    console.log('data is ready for search, ' + `string: ${target} ,elements: ${chunks} , ${chunks.length} chunks ,points: ${target_points}`)
+	// target_points is points which determine how many chunks will be used for search according to string lenght and precision
+	let target_points: number = Math.floor(chunks.length * precision);
+	console.log(
+		"data is ready for search, " +
+			`string: ${target} ,elements: ${chunks} , ${chunks.length} chunks ,points: ${target_points}`
+	);
 
+	//Function takes array of strings and  returns all combinations of given number amount of strings from this array
+	// so if ['a','b','c'], 2 provided, it will return [['a','b'],['a','c'],['c','b']]
+	function combinations(array: string[], num: number) {
+		let result: string[][] = [];
+		function helper(start: number, combination: string[]) {
+			if (combination.length === num) {
+				result.push(combination);
+				return;
+			}
 
+			for (let i = start; i < array.length; i++) {
+				helper(i + 1, [...combination, array[i]]);
+			}
+		}
 
-    //Function takes array of strings and  returns all combinations of given number amount of strings from this array 
-    // so if ['a','b','c'], 2 provided, it will return [['a','b'],['a','c'],['c','b']]
-    function combinations(array: string[], num: number) {
-        let result: string[][] = [];
+		helper(0, []);
+		return result;
+	}
+	let target_combinations: string[][] = combinations(chunks, target_points);
+	console.log("combinations created: " + target_combinations.length);
 
-        function helper(start: number, combination: string[]) {
-          if (combination.length === num) {
-            result.push(combination);
-            return;
-          }
+	//Path to index collection
+	let index = db.collection("index");
 
-          for (let i = start; i < array.length; i++) {
-            helper(i + 1, [...combination, array[i]]);
-          }
-        }
-      
-        helper(0, []);
-        return result;
-      }
+	//Creating new object for search results to compare them by id and exclude duplicates
+	interface Results {
+		id: any;
+		ref: FirebaseFirestore.DocumentReference;
+	}
+	let results: Results[] = [];
 
-    let target_combinations : string[][] = combinations(chunks, target_points)
-    console.log('combinations created: ' + target_combinations.length)
+	//Creating array of promises for getresult function
+	let promises: Promise<void>[] = [];
+	//Function takes array of combinations and data and checks for simular words  and pushes them into array
+	async function getResults(
+		combs: string[],
+		ref: FirebaseFirestore.Query<DocumentData>
+	) {
+		return new Promise<void>(async (resolve) => {
+			console.log(`searching ${combs}`);
+			let query = ref.where(combs[0], "==", true);
+			let snapshot = await query.get();
+			if (snapshot.empty) {
+				console.log(combs[0] + "empty(");
+				resolve();
+			} else {
+				combs.shift();
+				if (combs.length === 0) {
+					console.log("result found");
+					if (snapshot.docs.length < 2) {
+						results.push({
+							id: snapshot.docs[0].id,
+							ref: snapshot.docs[0].get("ref"),
+						});
+					} else {
+						snapshot.docs.forEach((doc) => {
+							results.push({
+								id: snapshot.docs[0].id,
+								ref: snapshot.docs[0].get("ref"),
+							});
+						});
+					}
+					console.log("result pushed");
+					resolve();
+				} else {
+					console.log(combs + " ||" + combs.length);
+					await getResults(combs, query);
+					resolve();
+				}
+			}
+		});
+	}
 
+	console.log("exequting queries");
+	target_combinations.map(async (arr) => {
+		promises.push(getResults(arr, index));
+	});
+	await Promise.all(promises);
 
-    let index = db.collection('index')
-    let results: FirebaseFirestore.DocumentData[] = []; 
+	// Deleting duplicates from results
+	results = results.filter(
+		(value, index, self) => index === self.findIndex((t) => t.id === value.id)
+	);
 
+	// Gathering and sending data
+	let responcePromises = results.map(async (obj) => await obj.ref.get());
+	let docs = await Promise.all(responcePromises);
 
-
-    let promises: Promise<void>[] = []
-
-    //Function takes array of combinations and data and checks for simular words  and pushes them into array
-    async function getResults(combs : string[], ref: FirebaseFirestore.Query<DocumentData>){
-        return new Promise<void>(async (resolve) => {
-            console.log(`searching ${combs}`)
-            let query = ref.where(combs[0], '==', true);
-            let snapshot= await query.get()
-            if (snapshot.empty) {
-                console.log(combs[0] + 'empty(')
-                resolve()
-            } 
-            else{
-                combs.shift()
-                if(combs.length === 0){
-                    console.log('result found')
-                    results.push(snapshot.docs.map((d) => d.data()))
-                    console.log('result pushed')
-                    resolve()
-                }
-                console.log(combs +' ||' + combs.length )
-                await getResults(combs,query)
-                resolve()
-            }
-        })
-    }
-
-    
-    console.log('exequting queries')
-    target_combinations.map(async (arr) => {
-        promises.push(getResults(arr, index))
-    })
-
-    await Promise.all(promises)
-    res.status(200).send([...new Set(results)])
-})
-
+	res.status(200).send(docs.map((d) => d.data()));
+});
