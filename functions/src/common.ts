@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 const FIRESTORE_WRITE_BATCH_SIZE = 450;
 
 export function safeString(unsafe: string):string {
-  return unsafe.replace(/\//gi, "_");
+  return unsafe.replace(/\//gi, '_').replace(/[^A-Za-z0-9 ]/g, '').trim();
 }
 
 export async function saveFields(jsonArray: any[], listId: string) {
