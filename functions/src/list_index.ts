@@ -152,17 +152,18 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
 
 function addToBatch(batch:any, listId:any, type:string, ref:any, name:string)
 {
+  let safeName = safeString(name);
   batch.set(
     db
       .collection('index')
-      .doc(listId+'|'+safeString(name))
+      .doc(listId+'|'+safeName)
       ,{
         'ref': ref,
         'listId': listId,
         'type': type,
-        'target': name,
+        'target': safeName,
         't': FieldValue.serverTimestamp(),
-        ...gramCounterBool(name, 2),
+        ...gramCounterBool(safeName, 2),
       });
 }
 
