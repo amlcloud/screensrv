@@ -1,44 +1,41 @@
-import { db,storage } from "./index";
+import { db } from "./index";
 import * as functions from "firebase-functions";
-import {uploadString,ref, StorageReference} from 'firebase/storage' 
+import { getStorage } from "firebase-admin/storage";
 
+export const StorageWriteList = functions
+	.runWith({ timeoutSeconds: 60, memory: "1GB" })
+	.https.onRequest(async (req, res) => {
+		if (req.method == "GET") {
+			var list: any = req.query.list;
+		} else if (req.method == "POST") {
+			var list = req.body.list;
+		}
+		if (!list) {
+			res.status(400).send('Parameter "list" - name of list was not provided');
+			return;
+		}
 
+		var document = await db
+			.collection("list")
+			.doc(list)
+			.collection("item")
+			.get();
 
-export const StorageWriteList = functions.runWith({timeoutSeconds: 60, memory: "1GB"}).https.onRequest(async (req,res) => {
+		document.docs.map((d) => d.data());
 
-    if (req.method == "GET") {
-        var list: any = req.query.list;
-      } else if (req.method == "POST") {
-        var list = req.body.list;
-      }
-      if (!list) {
-        res.status(400).send('Parameter "list" - name of list was not provided');
-        return;
-      }
+		// Convert the document data to a JSON string
 
-        var document = await db.collection('list').doc(list).collection('item').get();
+		try {
+			var jsonString = JSON.stringify(document);
 
-        document.docs.map((d) => d.data());
+			var storage = getStorage();
 
+			var bucket = storage.bucket();
 
-    // Convert the document data to a JSON string
+			bucket.file(`${list}.json`).save(jsonString);
 
-    try{
-        var jsonString = JSON.stringify(document);
-
-        var storageRef : StorageReference = ref(storage, 'lists');
-
-        const metadata = {
-          contentType: 'application/json',
-        }
-        try{
-        await uploadString(ref(storageRef, `${list}.json`),jsonString,'base64',metadata).then(
-          () => res.status(200).send('OK'))
-        }catch(err){
-            res.status(500).send(err)
-            return
-        }
-    }catch(err){
-        res.status(500).send(err)
-    }
-})
+			res.status(200).send("OK");
+		} catch (err) {
+			res.status(500).send(err);
+		}
+	});
