@@ -1,4 +1,4 @@
-import { DocumentData } from "firebase-admin/firestore";
+import { DocumentData, FieldPath } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 import { db } from "./index";
 
@@ -21,7 +21,7 @@ export const ScreenName = functions.https.onRequest(async (req, res) => {
 	console.log(`preparing search for ${name} with ${precision} precision`);
 
 	// Preparing data for search
-	let target = "-" + name.toLowerCase().replace(" ", "") + "-";
+	let target = "-" + name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "") + "-";
 	let chunks: string[] = [];
 	for (let i = 0; i < target.length - 1; i++) {
 		chunks.push(target[i] + target[i + 1]);
@@ -65,6 +65,22 @@ export const ScreenName = functions.https.onRequest(async (req, res) => {
 	}
 	let results: Results[] = [];
 
+	/*
+	This function takes array with chunks and ref to collection, and returns querry of type:
+		ref.where(chunk[0] == true).where(chunk[1] == true).etc
+	 */
+	function QueryPrep(
+		combs: string[],
+		ref: FirebaseFirestore.Query<DocumentData>
+	): any {
+		if (combs.length < 1) {
+			return ref;
+		} else {
+			let query = ref.where(combs.shift() as unknown as FieldPath, "==", true);
+			return QueryPrep(combs, query);
+		}
+	}
+
 	//Creating array of promises for getresult function
 	let promises: Promise<void>[] = [];
 	//Function takes array of combinations and data and checks for simular words  and pushes them into array
@@ -74,35 +90,27 @@ export const ScreenName = functions.https.onRequest(async (req, res) => {
 	) {
 		return new Promise<void>(async (resolve) => {
 			console.log(`searching ${combs}`);
-			let query = ref.where(combs[0], "==", true);
-			let snapshot = await query.get();
+			let snapshot: any = QueryPrep(combs, ref);
+			snapshot = await snapshot.get();
 			if (snapshot.empty) {
 				console.log(combs[0] + "empty(");
 				resolve();
 			} else {
-				combs.shift();
-				if (combs.length === 0) {
-					console.log("result found");
-					if (snapshot.docs.length < 2) {
+				if (snapshot.docs.length < 2) {
+					results.push({
+						id: snapshot.docs[0].id,
+						ref: snapshot.docs[0].get("ref"),
+					});
+				} else {
+					snapshot.docs.forEach(() => {
 						results.push({
 							id: snapshot.docs[0].id,
 							ref: snapshot.docs[0].get("ref"),
 						});
-					} else {
-						snapshot.docs.forEach((doc) => {
-							results.push({
-								id: snapshot.docs[0].id,
-								ref: snapshot.docs[0].get("ref"),
-							});
-						});
-					}
-					console.log("result pushed");
-					resolve();
-				} else {
-					console.log(combs + " ||" + combs.length);
-					await getResults(combs, query);
-					resolve();
+					});
 				}
+				console.log("result pushed");
+				resolve();
 			}
 		});
 	}
