@@ -25,17 +25,17 @@ export const StorageWriteList = functions
 
 		// Convert the document data to a JSON string
 
+		var jsonString = JSON.stringify(document);
+		console.log("sting creqated");
+
+		var storage = getStorage();
+		console.log("storage getted");
+
 		try {
-			var jsonString = JSON.stringify(document);
-
-			var storage = getStorage();
-
-			var bucket = storage.bucket();
-
-			bucket.file(`${list}.json`).save(jsonString);
-
-			res.status(200).send("OK");
+			await storage.bucket().file(`${list}.json`).save(jsonString);
 		} catch (err) {
-			res.status(500).send(err);
+			console.log(err);
+			return;
 		}
+		res.status(200).send("OK");
 	});
