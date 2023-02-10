@@ -1,24 +1,23 @@
-import { initializeApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { initializeApp } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 
 //const serviceAccount = require("../screener-9631e-firebase-adminsdk-ipwv7-84336a16ac.json");
 
-initializeApp();//{ credential: cert(serviceAccount) });
+initializeApp(); //{ credential: cert(serviceAccount) });
 
 export var db = getFirestore();
 
-export { onSearchCreate } from './screen';
-export { getList } from './list';
-export { getListDetails } from './list';
-export {GetSanctionsList} from './sanctions_list'
-export {GetSanctionsListEntities} from './sanction_list_entities'
-export {GetSanctionsListItemEntity} from './sanction_list_item_entity'
-export {findName} from './findName'
+export { onSearchCreate } from "./screen";
+export { getList } from "./list";
+export { getListDetails } from "./list";
+export { GetSanctionsList } from "./sanctions_list";
+export { GetSanctionsListEntities } from "./sanction_list_entities";
+export { GetSanctionsListItemEntity } from "./sanction_list_item_entity";
+export { findName } from "./findName";
 
-export { index_list }  from './list_index';
-export { index_list2 }  from './list_index';
-export { test }  from './list_index';
-export { screen }  from './screen';
+export { index_list } from "./list_index";
+export { index_list2 } from "./list_index";
+export { test } from "./list_index";
 
 export { dfat_gov_au__consolidated_list } from "./fetch";
 // export { gov_uk__financial_sanctions_list } from "./fetch";
@@ -41,6 +40,5 @@ export { dgtresor_gouv_fr__national_freeze_registry } from "./fetch";
 // // export { ecfr_gov__unverified } from "./fetch";
 // // export { dgtresor_gouv_fr__national_freeze_registry } from "./fetch";
 // export { gc_ca__consol_autonomous_sanctions } from "./fetch";
-
 
 export { GetSanctionLists } from "./GetSanctionLists";
