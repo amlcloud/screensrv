@@ -2,7 +2,7 @@
 import { DocumentReference, FieldValue } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 import { db } from ".";
-import { safeString } from "./common";
+import { safeDocumentID, safeIndexingTarget } from "./common";
 import { gramCounterBool } from "./gram";
 import { Query, QuerySnapshot } from "firebase-admin/firestore";
 const cors = require('cors')({ origin: true });
@@ -35,7 +35,7 @@ export const index_list = functions.runWith({timeoutSeconds:540}).https
       batch.set(
       db
         .collection('index')
-        .doc(listId+'|'+safeString(itm.data()[fieldId]))
+        .doc(listId+'|'+safeDocumentID(itm.data()[fieldId]))
         ,{
           'ref': itm.ref,
           'target': itm.data()[fieldId],
@@ -152,17 +152,18 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
 
 function addToBatch(batch:any, listId:any, type:string, ref:any, name:string)
 {
+  let target = safeIndexingTarget(name);
   batch.set(
     db
       .collection('index')
-      .doc(listId+'|'+safeString(name))
+      .doc(listId+'|'+safeDocumentID(name))
       ,{
         'ref': ref,
         'listId': listId,
         'type': type,
-        'target': name,
+        'target': target,
         't': FieldValue.serverTimestamp(),
-        ...gramCounterBool(name, 2),
+        ...gramCounterBool(target, 2),
       });
 }
 
