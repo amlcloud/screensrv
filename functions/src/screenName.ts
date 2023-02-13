@@ -11,14 +11,11 @@ export const ScreenName = functions.https.onRequest(async (req, res) => {
 		var name: any = req.body.name as string;
 		var precision = req.body.precision;
 	}
-	if (!name) {
-		res.status(400).send('Parameter "name"  was not provided');
+	if (!name|| name.length < 7) {
+		res.status(400).send('Parameter "name" - min 7 characters');
 		return;
 	}else if (!precision || precision < 0.9 || precision > 1) {
 		res.status(400).send('Parameter 0.9 < "precison" < 1');
-		return;
-	}else if (name.lenght < 7) {
-		res.status(400).send('search target should be at least 7 characters long');
 		return;
 	}
 
