@@ -14,10 +14,14 @@ export const ScreenName = functions.https.onRequest(async (req, res) => {
 	if (!name) {
 		res.status(400).send('Parameter "name"  was not provided');
 		return;
-	} else if (!precision || precision < 0.9 || precision > 1) {
+	}else if (!precision || precision < 0.9 || precision > 1) {
 		res.status(400).send('Parameter 0.9 < "precison" < 1');
 		return;
+	}else if (name.lenght < 7) {
+		res.status(400).send('search target should be at least 7 characters long');
+		return;
 	}
+
 	console.log(`preparing search for ${name} with ${precision} precision`);
 
 	// Preparing data for search
