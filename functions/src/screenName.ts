@@ -2,6 +2,9 @@ import { DocumentData, FieldPath } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 import { db } from "./index";
 
+//Minimal lenght of string provided
+const MIN_LENGHT = 7;
+
 export const ScreenName = functions.https.onRequest(async (req, res) => {
 	//getting variables from request and checking them
 	if (req.method == "GET") {
@@ -11,11 +14,11 @@ export const ScreenName = functions.https.onRequest(async (req, res) => {
 		var name: any = req.body.name as string;
 		var precision = req.body.precision;
 	}
-	if (!name|| name.length < 7) {
+	if (!name|| name.length < MIN_LENGHT) {
 		res.status(400).send('Parameter "name" - min 7 characters');
 		return;
-	}else if (!precision || precision < 0.9 || precision > 1) {
-		res.status(400).send('Parameter 0.9 < "precison" < 1');
+	}else if (!precision) {
+		res.status(400).send('Parameter precision was not provided');
 		return;
 	}
 
@@ -94,7 +97,7 @@ export const ScreenName = functions.https.onRequest(async (req, res) => {
 			let snapshot: any = QueryPrep(combs, ref);
 			snapshot = await snapshot.get();
 			if (snapshot.empty) {
-				console.log(combs[0] + "empty(");
+				console.log("empty");
 				resolve();
 			} else {
 				if (snapshot.docs.length < 2) {
