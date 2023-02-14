@@ -3,7 +3,7 @@ import * as functions from "firebase-functions";
 import { getStorage } from "firebase-admin/storage";
 
 export const StorageWriteList = functions
-	.runWith({ timeoutSeconds: 60, memory: "1GB" })
+	.runWith({ timeoutSeconds: 120, memory: "4GB" })
 	.https.onRequest(async (req, res) => {
 		if (req.method == "GET") {
 			var list: any = req.query.list;
