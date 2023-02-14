@@ -3,7 +3,7 @@ import { db } from "./index";
 
 //returns the list of items (in JSON) of the sanction list.
 export const GetSanctionsListEntities = functions
-  .runWith({ timeoutSeconds: 60, memory: "512MB" })
+  .runWith({ timeoutSeconds: 60, memory: "1GB" })
   .https.onRequest(async (req, res) => {
     // Checking if request method was POST or GET and if item was provided
     if (req.method == "GET") {
@@ -32,8 +32,6 @@ export const GetSanctionsListEntities = functions
           removeNullProperties(obj[propName]);
         }
       }
-      // Progress tracking
-      console.log('null values removed')
       return obj;
     }
 
@@ -44,12 +42,11 @@ export const GetSanctionsListEntities = functions
           delete obj[propName];
         }
       }
-      console.log('empty arrays removed')
       return obj;
     }
 
     //Sending response
-    const responce = await db.collection("list").doc(list).collection("item").get();
+    var responce = await db.collection("list").doc(list).collection("item").limit(19000).get();
     console.log('data is prepared')
 
     try{
