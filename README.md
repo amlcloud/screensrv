@@ -9,6 +9,24 @@
   - contains indices (indexes) of all sanctions lists in the storage.
   As an example, `'/index/ec_europa_eu__sanctions_list|"Vostok Brigade"'` document holds an index record for sanction list with id `"ec_europa_eu__sanctions_list"` and search name "Vostok Brigade". Meaning, when you are searching for `"Vostok Brigade"` or `"Vastok Brigada"` both should return the document exists in `"list/ec_europa_eu__sanctions_list"` and is referenced by this index record (via ref field).
 
+- `/indexStatus`
+  - contains status of list index
+    If the list was never indexed there will be no document in the collection with the list ID.
+    When indexing starts it will reset the count to 0:
+      count: 0
+      total: 1000
+      listId: "government_nl__dnslt"
+
+    If the indexing is in progress the 'count' will be different to 'total':
+      count: 333
+      total: 1000
+      listId: "government_nl__dnslt"
+
+    If the indexing is finished the count will equal total:
+      count: 1000
+      total: 1000
+      listId: "government_nl__dnslt"
+
 - `/list`
   - contains all sanction lists. Each document in this collection records the last updated and changed times of this list and general information about the list (like `source URL`, `etc`)
 
