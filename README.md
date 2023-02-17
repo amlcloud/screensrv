@@ -27,6 +27,13 @@
       total: 1000
       listId: "government_nl__dnslt"
 
+    Status field can have 3 different values:
+      "Not indexed"  (set initially)
+      "Indexing..."  (set by UI)
+      "Indexed"  (set by function)
+      "Indexing failed" (set by function)
+    The moment user starts indexing the status will change to "Indexing..." (even before server function is called). 
+
 - `/list`
   - contains all sanction lists. Each document in this collection records the last updated and changed times of this list and general information about the list (like `source URL`, `etc`)
 
