@@ -65,8 +65,15 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
   cors(request, res,async () => {
     const listId:string=request.query.list as string;
     const deleteRequest = request.query.delete as string;
-    const statusColRef = db.collection('indexStatus');
-    await deleteLargeColByQuery(statusColRef.where('listId', '==', listId))
+    const statusColRef = await db.collection('indexStatus');
+    const statusDocRef = await statusColRef.where('listId', '==', listId).get();
+    let statusRef: DocumentReference;
+    if (statusDocRef.docs.length > 0) {
+      statusRef = statusDocRef.docs[0].ref;
+    } else {
+      statusRef = await statusColRef.add({listId: listId, count: 0, total: 0});
+    }
+    await statusRef.update({count: 0, indexing: true});
     await deleteLargeColByQuery(db.collection('index').where('listId', '==', listId));
     if (deleteRequest !== 'true') {
       let counter = 0;
@@ -75,7 +82,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
       const reference = await db.collection('list').doc(listId);
       const indexConfigs = await reference.collection('indexConfigs').get();
       const items = await reference.collection('item').get();
-      let statusRef = await statusColRef.add({listId: listId, count: 0, total: items.size});
+      await statusRef.update({total: items.size});
       for (let indexConfig of indexConfigs.docs) {
         let entityIndexFields = await indexConfig.ref.collection('entityIndexFields').orderBy('createdTimestamp').get();
         var valid = true;
@@ -95,7 +102,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
                 counter++;
                 indexMap.set(item.ref, true);
                 if (counter > 490) {
-                  statusRef.update({count: [...indexMap.keys()].length});
+                  await statusRef.update({count: [...indexMap.keys()].length});
                   await batch.commit();
                   batch = db.batch();
                   counter = 0;
@@ -117,7 +124,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
                 counter++;
                 indexMap.set(item.ref, true);
                 if (counter > 490) {
-                  statusRef.update({count: [...indexMap.keys()].length});
+                  await statusRef.update({count: [...indexMap.keys()].length});
                   await batch.commit();
                   batch = db.batch();
                   counter = 0;
@@ -131,7 +138,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
                   counter++;
                   indexMap.set(item.ref, true);
                   if (counter > 490) {
-                    statusRef.update({count: [...indexMap.keys()].length});
+                    await statusRef.update({count: [...indexMap.keys()].length});
                     await batch.commit();
                     batch = db.batch();
                     counter = 0;
@@ -142,7 +149,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
           }
         }
       }
-      statusRef.update({count: [...indexMap.keys()].length});
+      await statusRef.update({count: [...indexMap.keys()].length, indexing: false});
       await batch.commit();
     }
     res.send(`indexed list ${request.query.list}`);
