@@ -9,6 +9,31 @@
   - contains indices (indexes) of all sanctions lists in the storage.
   As an example, `'/index/ec_europa_eu__sanctions_list|"Vostok Brigade"'` document holds an index record for sanction list with id `"ec_europa_eu__sanctions_list"` and search name "Vostok Brigade". Meaning, when you are searching for `"Vostok Brigade"` or `"Vastok Brigada"` both should return the document exists in `"list/ec_europa_eu__sanctions_list"` and is referenced by this index record (via ref field).
 
+- `/indexStatus`
+  - contains status of list index
+    If the list was never indexed there will be no document in the collection with the list ID.
+    When indexing starts it will reset the count to 0:
+      count: 0
+      total: 1000
+      listId: "government_nl__dnslt"
+
+    If the indexing is in progress the 'count' will be different to 'total':
+      count: 333
+      total: 1000
+      listId: "government_nl__dnslt"
+
+    If the indexing is finished the count will equal total:
+      count: 1000
+      total: 1000
+      listId: "government_nl__dnslt"
+
+    Status field can have 3 different values:
+      "Not indexed"  (set initially)
+      "Indexing..."  (set by UI)
+      "Indexed"  (set by function)
+      "Indexing failed" (set by function)
+    The moment user starts indexing the status will change to "Indexing..." (even before server function is called). 
+
 - `/list`
   - contains all sanction lists. Each document in this collection records the last updated and changed times of this list and general information about the list (like `source URL`, `etc`)
 
@@ -69,23 +94,23 @@ or in browser: https://us-central1-screener-9631e.cloudfunctions.net/GetSanction
 - **ScreenName**
   - returns screening results based on the fuzzy search matching on the entire index (all sanctions lists) with the given precision. If precision is 1 it will return only exactly matching records.
   
-  - input: search target string, precision (0.9-1)
+  - input: name: string, precision (0.9-1)
 
 ```bash
-curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/ScreenName?..."
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/ScreenName?name=AnyName"
 ```
 
-or in browser: https://us-central1-screener-9631e.cloudfunctions.net/ScreenName...
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/ScreenName?name=AnyName
 
 - **FindName**
   - returns exact search matches across all lists for the name provided.  
-  - input: search target string
+  - input:  name: string
 
 ```bash
-curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/FindName?..."
+curl -X POST -H "Content-Type:application/json" "https://us-central1-screener-9631e.cloudfunctions.net/FindName?name=AnyName"
 ```
 
-or in browser: https://us-central1-screener-9631e.cloudfunctions.net/FindName
+or in browser: https://us-central1-screener-9631e.cloudfunctions.net/FindName?name=AnyName
 
   
 <!-- - **ScreenPerson (TBD)**
