@@ -65,7 +65,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
   cors(request, res,async () => {
     const listId:string=request.query.list as string;
     const deleteRequest = request.query.delete as string;
-    const statusColRef = await db.collection('indexStatus');
+    const statusColRef = db.collection('indexStatus');
     const statusDocRef = await statusColRef.where('listId', '==', listId).get();
     let statusRef: DocumentReference;
     if (statusDocRef.docs.length > 0) {
