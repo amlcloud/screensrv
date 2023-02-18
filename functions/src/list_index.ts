@@ -102,7 +102,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
                 counter++;
                 indexMap.set(item.ref, true);
                 if (counter > 490) {
-                  await statusRef.update({count: [...indexMap.keys()].length});
+                  statusRef.update({count: [...indexMap.keys()].length});
                   await batch.commit();
                   batch = db.batch();
                   counter = 0;
@@ -124,7 +124,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
                 counter++;
                 indexMap.set(item.ref, true);
                 if (counter > 490) {
-                  await statusRef.update({count: [...indexMap.keys()].length});
+                  statusRef.update({count: [...indexMap.keys()].length});
                   await batch.commit();
                   batch = db.batch();
                   counter = 0;
@@ -138,7 +138,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
                   counter++;
                   indexMap.set(item.ref, true);
                   if (counter > 490) {
-                    await statusRef.update({count: [...indexMap.keys()].length});
+                    statusRef.update({count: [...indexMap.keys()].length});
                     await batch.commit();
                     batch = db.batch();
                     counter = 0;
@@ -149,7 +149,7 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
           }
         }
       }
-      await statusRef.update({count: [...indexMap.keys()].length, indexing: false});
+      statusRef.update({count: [...indexMap.keys()].length, indexing: false});
       await batch.commit();
     }
     res.send(`indexed list ${request.query.list}`);
