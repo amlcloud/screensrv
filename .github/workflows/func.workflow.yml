@@ -1,6 +1,8 @@
 name: Deploy a function
 on:
   push:
+    branches:
+      - main
     tags:
       - func*
 jobs:

@@ -1,6 +1,8 @@
 name: Deploy a rule
 on:
   push:
+    branches:
+      - main
     tags:
       - rule*
 jobs:
