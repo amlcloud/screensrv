@@ -1,6 +1,6 @@
 name: Deploy a rule
 on:
-  merge:
+  push:
     tags:
       - rule*
 jobs:

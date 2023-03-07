@@ -1,6 +1,6 @@
 name: Deploy a function
 on:
-  merge:
+  push:
     tags:
       - func*
 jobs:
