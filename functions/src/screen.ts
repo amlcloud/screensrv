@@ -11,7 +11,7 @@ export const onSearchCreate = functions.firestore
 	.onCreate(async (document: DocumentSnapshot, context) => {
 		let userId = document.ref.path.split("/")[1];
 
-		await userTriggeredScreen(document.id, 2, 0.9, userId);
+		await userTriggeredScreen(document.data()!['target'], 2, 0.9, userId);
 	});
 
 export async function userTriggeredScreen(
