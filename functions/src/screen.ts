@@ -11,10 +11,11 @@ export const onSearchCreate = functions.firestore
 	.onCreate(async (document: DocumentSnapshot, context) => {
 		let userId = document.ref.path.split("/")[1];
 
-		await userTriggeredScreen(document.data()!['target'], 2, 0.9, userId);
+		await userTriggeredScreen(document, document.data()!['target'], 2, 0.9, userId);
 	});
 
 export async function userTriggeredScreen(
+	searchDoc: DocumentSnapshot,
 	name: string,
 	gramSize: number,
 	pres: number,
@@ -88,11 +89,7 @@ export async function userTriggeredScreen(
 		.map((snap) => snap.size)
 		.reduce((prev, snap) => prev + snap);
 
-	await db
-		.collection("user")
-		.doc(userId)
-		.collection("search")
-		.doc(name)
+	await searchDoc.ref
 		.update({
 			resultsCount: resultsCount,
 			timeCompleted: FieldValue.serverTimestamp(),
@@ -111,11 +108,7 @@ export async function userTriggeredScreen(
 			// let existingSearchDoc=searchQS.docs.find((d) => d.data()['$']===f.data()['$'] );
 			// if(existingSearchDoc===undefined)
 			{
-				await db
-					.collection("user")
-					.doc(userId)
-					.collection("search")
-					.doc(name)
+				await searchDoc.ref
 					.collection("res")
 					.doc(f.id)
 					.set({
