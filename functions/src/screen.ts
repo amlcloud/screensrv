@@ -99,8 +99,8 @@ export async function userTriggeredScreen(
 		//console.log(`${r.id} returned size: ${r.size}`);
 		for (let f of r.docs) {
 			console.log(
-				`found: ${f.data()["target"]} levenshtein: ${matchLevenshtein(
-					f.data()["target"],
+				`found: ${f.data()["target"]} ref: ${f.data()["ref"]} levenshtein: ${matchLevenshtein(
+					f.data()["target"], 
 					name
 				)}, gram: ${matchGram(f.data()["target"], name, 2)}`
 			);
