@@ -90,22 +90,25 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
         await statusRef.update({total: items.size});
         for (let indexConfig of indexConfigs.docs) {
           let entityIndexFields = await indexConfig.ref.collection('entityIndexFields').orderBy('createdTimestamp').get();
-          var valid = true;
-          for (let entityIndexField of entityIndexFields.docs) {
-            if (!entityIndexField.data().valid) {
-              valid = false;
-              break;
-            }
-          }
-          if (valid && entityIndexFields.docs.length > 0) {
+          // var valid = true;
+          // for (let entityIndexField of entityIndexFields.docs) {
+          //   if (!entityIndexField.data().valid) {
+          //     valid = false;
+          //     break;
+          //   }
+          // }
+          if (
+            //valid && 
+            entityIndexFields.docs.length > 0) {
             let type = indexConfig.data().type;
             for (let item of items.docs) {
               if (type === 'Single field') {
                 let value = item.data()[entityIndexFields.docs[0].data().value];
                 if (!Array.isArray(value)) {
-                  addToBatch(batch, listId, type, item.ref, value);
+                  const indexDocRef=addToBatch(batch, listId, type, item.ref, value);
                   counter++;
-                  indexMap.set(item.ref, true);
+                  if(indexDocRef!==undefined)
+                    indexMap.set(item.ref, true);
                   if (counter > 490) {
                     statusRef.update({count: [...indexMap.keys()].length});
                     await batch.commit();
@@ -125,9 +128,10 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
                   name += (name.length > 0 ? ' ' : '') + value;
                 }
                 if (!containsArray) {
-                  addToBatch(batch, listId, type, item.ref, name);
+                  const indexDocRef= addToBatch(batch, listId, type, item.ref, name);
                   counter++;
-                  indexMap.set(item.ref, true);
+                  if(indexDocRef!==undefined)
+                    indexMap.set(item.ref, true);
                   if (counter > 490) {
                     statusRef.update({count: [...indexMap.keys()].length});
                     await batch.commit();
@@ -139,9 +143,13 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
                 let values = item.data()[entityIndexFields.docs[0].data().value];
                 if (Array.isArray(values)) {
                   for (let value of values) {
+                    const indexDocRef=
                     addToBatch(batch, listId, type, item.ref, value);
                     counter++;
-                    indexMap.set(item.ref, true);
+
+                    if(indexDocRef!==undefined)
+                      indexMap.set(item.ref, true);
+
                     if (counter > 490) {
                       statusRef.update({count: [...indexMap.keys()].length});
                       await batch.commit();
@@ -163,13 +171,20 @@ export const index_list2 = functions.runWith({timeoutSeconds:540}).https
 });
 
 
-function addToBatch(batch:any, listId:any, type:string, ref:any, name:string)
+function addToBatch(batch:any, listId:any, type:string, ref:any, name:string):DocumentReference|undefined
 {
+  if(name===undefined) {
+    console.log(`undefined name for ${ref.path}, list: ${listId}}`);
+    return undefined;
+  }
+
   let target = safeIndexingTarget(name);
+
+  const indexDocRef= db
+  .collection('index')
+  .doc(listId+'|'+safeDocumentID(name));
   batch.set(
-    db
-      .collection('index')
-      .doc(listId+'|'+safeDocumentID(name))
+    indexDocRef
       ,{
         'ref': ref,
         'listId': listId,
@@ -178,6 +193,7 @@ function addToBatch(batch:any, listId:any, type:string, ref:any, name:string)
         't': FieldValue.serverTimestamp(),
         ...gramCounterBool(target, 2),
       });
+  return  indexDocRef;
 }
 
 export async function deleteLargeColByQuery(query: Query) {
