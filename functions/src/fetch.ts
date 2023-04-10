@@ -1,6 +1,6 @@
 // import axios from "axios";
 import * as functions from "firebase-functions";
-import * as sanctions from "sanctions";
+import * as sanctions from "../../../sanctions";
 import { saveList } from "./common";
 // import fetch from 'node-fetch';
 // const XLSX = require("xlsx");
@@ -16,7 +16,7 @@ export const dfat_gov_au__consolidated_list = functions.pubsub
   await sanctions.dfat_gov_au__consolidated_list();
   console.log('saveList...');
   await saveList(await sanctions.dfat_gov_au__consolidated_list(), 
-    'dfat_gov_au__consolidated_list', "Name of Individual or Entity");
+    'dfat_gov_au__consolidated_list', "Name of Individual or Entity", true);
   return null;
 });
 
@@ -36,7 +36,7 @@ export const ec_europa_eu__sanctions_list = functions.pubsub
   await sanctions.ec_europa_eu__sanctions_list();
 
     await saveList(await sanctions.ec_europa_eu__sanctions_list(), 
-    'ec_europa_eu__sanctions_list', "Name of Individual or Entity");
+    'ec_europa_eu__sanctions_list', "Name of Individual or Entity", true);
 });
 
 export const government_nl__dutch_national_sanctions_list = functions.pubsub
@@ -44,7 +44,7 @@ export const government_nl__dutch_national_sanctions_list = functions.pubsub
 .timeZone("Australia/Sydney")
 .onRun(async () => {
     await saveList(await sanctions.government_nl__dutch_national_sanctions_list(), 
-    'government_nl__dutch_national_sanctions_list', "Name of Individual or Entity");
+    'government_nl__dutch_national_sanctions_list', "Name of Individual or Entity", true);
 });
 
 // //Have to add in index.js
@@ -62,7 +62,7 @@ export const un_org__consolidated_individuals = functions.pubsub
 .timeZone("Australia/Sydney")
 .onRun(async () => {
     await saveList(await sanctions.un_org__consolidated_individuals(), 
-    'un_org__consolidated_individuals', "Name of Individual or Entity");
+    'un_org__consolidated_individuals', "Name of Individual or Entity", true);
 });
 
 // Have to add in index.js
@@ -80,7 +80,7 @@ export const treasury_gov__nonsdnl = functions.pubsub
 .timeZone("Australia/Sydney")
 .onRun(async () => {
     await saveList(await sanctions.treasury_gov__nonsdnl(), 
-    'treasury_gov__nonsdnl', "Name of Individual or Entity");
+    'treasury_gov__nonsdnl', "Name of Individual or Entity", true);
 });
 
 
@@ -89,7 +89,7 @@ export const pmddtc_state_gov__aeca_dsl = functions.pubsub
 .timeZone("Australia/Sydney")
 .onRun(async () => {
     await saveList(await sanctions.pmddtc_state_gov__aeca_dsl(), 
-    'pmddtc_state_gov__aeca_dsl', "Name of Individual or Entity");
+    'pmddtc_state_gov__aeca_dsl', "Name of Individual or Entity", true);
 });
 
 // Have to add in index.js
@@ -107,7 +107,7 @@ export const bis_doc_gov__denied_persons = functions.pubsub
 .timeZone("Australia/Sydney")
 .onRun(async () => {
     await saveList(await sanctions.bis_doc_gov__denied_persons(), 
-    'bis_doc_gov__denied_persons', "Name of Individual or Entity");
+    'bis_doc_gov__denied_persons', "Name of Individual or Entity", true);
 });
 
 //Have to add in index.js
@@ -134,7 +134,7 @@ export const occ_gov__enforcement_actions = functions.pubsub
 .timeZone("Australia/Sydney")
 .onRun(async () => {
     await saveList(await sanctions.occ_gov__enforcement_actions(), 
-    'occ_gov__enforcement_actions', "Name of Individual or Entity");
+    'occ_gov__enforcement_actions', "Name of Individual or Entity", true);
 });
 
 //Have to add in index.js
@@ -161,7 +161,7 @@ export const dgtresor_gouv_fr__national_freeze_registry = functions.pubsub
 .timeZone("Australia/Sydney")
 .onRun(async () => {
     await saveList(await sanctions.dgtresor_gouv_fr__national_freeze_registry(), 
-    'dgtresor_gouv_fr__national_freeze_registry', "Name of Individual or Entity");
+    'dgtresor_gouv_fr__national_freeze_registry', "Name of Individual or Entity", true);
 });
 
 // Have to add in index.js
@@ -189,7 +189,7 @@ export const publicsafety_gc_ca__counter_terrorism_entity = functions.pubsub
 .timeZone("Australia/Sydney")
 .onRun(async () => {
     await saveList(await sanctions.publicsafety_gc_ca__counter_terrorism_entity(), 
-    'gc_ca__consol_autonomous_sanctions', "Name of Individual or Entity");
+    'gc_ca__consol_autonomous_sanctions', "Name of Individual or Entity", true);
 });
 
 // export const  = functions.pubsub

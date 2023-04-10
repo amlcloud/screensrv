@@ -49,11 +49,16 @@ export async function saveFields(jsonArray: any[], listId: string) {
 }
 
 // Saving list
-export async function saveList(jsonArray: any[], listId: string, fieldId: string) {
+export async function saveList(jsonArray: any[], listId: string, fieldId: string, isVisible: boolean) {
   let docRef: DocumentReference = db.collection("list").doc(listId);
   let hash = createHash("md5").update(JSON.stringify(jsonArray)).digest("hex");
   console.dir(`fetched list document with hash: ${hash}`);
   let doc = await docRef.get();
+  await docRef.set(
+    {
+      "isVisible": isVisible,
+    }
+  );
   if (doc.exists && doc.data()?.["lastUpdateHash"] === hash) {
     console.log("hash not changed, skip update");
     return;
