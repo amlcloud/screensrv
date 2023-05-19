@@ -16,12 +16,19 @@ export const onSearchCreate = functions.firestore
 
 export async function userTriggeredScreen(
 	searchDoc: DocumentSnapshot,
-	name: string,
+	searchName: string,
 	gramSize: number,
 	pres: number,
 	userId: string
 ): Promise<number> {
-	console.log(`search for ${name}`);
+	console.log(`search for ${searchName}`);
+
+	var name= searchName;
+	// truncate name if it is too long
+	if (searchName.length > 100) {
+		name = searchName.substring(0, 100);
+		console.log(`name truncated to ${name}`);
+	}
 
 	var gramCounts: { [key: string]: any } = gramCounterBool(
 		name.toLowerCase(),

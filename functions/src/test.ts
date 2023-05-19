@@ -1,5 +1,5 @@
 import * as sanctions from "sanctions";
-import { saveList } from "./common";
+import { updateList } from "./common";
 
 
 // For testing the sanctions module
@@ -12,7 +12,7 @@ export async function test_fetch() {
       const list = await sanctions.bis_doc_gov__denied_persons();
       console.log("fetch done, save...");
       // await saveList(list, "dfat_gov_au__consolidated_list", "fieldId");
-      await saveList(list, "robert_test_list", "fieldId");
+      await updateList(list, "robert_test_list");
     } catch (error) {
       console.log("error ", error);
     }

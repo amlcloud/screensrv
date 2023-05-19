@@ -1,6 +1,7 @@
 import { CollectionReference, DocumentReference, FieldValue } from "firebase-admin/firestore";
 import { db } from "./index";
 import { createHash } from "node:crypto";
+import { deleteLargeColByQuery } from "./list_index";
 
 const FIRESTORE_WRITE_BATCH_SIZE = 450;
 
@@ -49,7 +50,7 @@ export async function saveFields(jsonArray: any[], listId: string) {
 }
 
 // Saving list
-export async function saveList(jsonArray: any[], listId: string, fieldId: string) {
+export async function updateList(jsonArray: any[], listId: string) {
   let docRef: DocumentReference = db.collection("list").doc(listId);
   let hash = createHash("md5").update(JSON.stringify(jsonArray)).digest("hex");
   console.dir(`fetched list document with hash: ${hash}`);
@@ -58,13 +59,20 @@ export async function saveList(jsonArray: any[], listId: string, fieldId: string
     console.log("hash not changed, skip update");
     return;
   }
+
+  docRef.collection('history').add(doc.data()!);
+
   await docRef.set(
     {
       "lastUpdateTime": FieldValue.serverTimestamp(),
       "lastUpdateHash": hash,
-    }
+      "lastUpdateCount": jsonArray.length,
+    }, {merge: true}
   );
-  await saveDocuments(jsonArray, docRef.collection("item"), fieldId);
+
+  await deleteLargeColByQuery(docRef.collection("item"));
+  console.log(`save ${jsonArray.length} documents`);
+  await saveDocuments(jsonArray, docRef.collection("item"));
   await saveFields(jsonArray, listId);
 }
 
@@ -73,7 +81,7 @@ export async function saveList(jsonArray: any[], listId: string, fieldId: string
  * of JSON object.
  *
  */
-export async function saveDocuments(jsonArray: any[], colRef: CollectionReference, fieldId: string) {
+export async function saveDocuments(jsonArray: any[], colRef: CollectionReference) {
   let counter = 0;
   let batch = db.batch();
 

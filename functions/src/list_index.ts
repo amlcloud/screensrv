@@ -202,12 +202,12 @@ export async function deleteLargeColByQuery(query: Query) {
 
   let chunk: QuerySnapshot;
   do {
-    chunk = await query.select().limit(1000).get();
+    chunk = await query.select().limit(450).get();
     for (const l of chunk.docs) {
       batch.delete(l.ref);
       counter++;
 
-      if (counter > 400) {
+      if (counter > 450) {
         await batch.commit();
         batch = db.batch();
         counter = 0;

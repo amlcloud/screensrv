@@ -1,24 +1,98 @@
-// import axios from "axios";
+import { db } from "./index";
+const nodeFetch = require("node-fetch");
 import * as functions from "firebase-functions";
 import * as sanctions from "sanctions";
-import { saveList } from "./common";
-// import fetch from 'node-fetch';
-// const XLSX = require("xlsx");
-// import { dfat_gov_au__consolidated_list1 } from "./dfat_gov_au__consolidated_list";
+import { updateList } from "./common";
+import { DocumentSnapshot } from "firebase-admin/firestore";
 
+export async function fetchJSON(url:String) {
+  
+    // Make the API Call
+    const response = await nodeFetch(url, {
+      method: "GET",
+    //   headers: new nodeFetch.Headers({
+    //     apiKey: API_KEY,
+    //   }),
+    });
+  
+    // get the data
+    const text = await response.text();
+    
+    console.log('response: '+text.substring(0, 100));
+
+    const responseJson = JSON.parse(text);
+    console.log('responseJson: '+JSON.stringify(responseJson).substring(0, 100));
+    console.log(`items found: ${responseJson.length}`);
+  
+    // Generate the hash in the list document
+    // const hash = createHash("md5").update(text).digest("hex");
+    // console.log(`fetched list document with hash: ${hash}`);
+  
+    // let res: { [key: string]: any }[] = [];
+    // // update docs in the batch
+    // // const batches: Array<Array<any>> = [[]];
+    // data.forEach((item: any) => {
+    //   res.push(item);
+    // });
+  
+    return responseJson;
+  }
+
+async function fetchList(listId: string) {
+  const listDoc:DocumentSnapshot = await db.collection("list").doc(listId).get();
+  console.log('listDoc: '+JSON.stringify(listDoc.data()));
+  if (!listDoc.exists || !listDoc.data()!['artifactId']===undefined) {
+    console.log('artifactId not found');
+    return;
+  }
+  const artifactId = listDoc.get('artifactId');
+
+  console.log('artifact id: '+artifactId);
+  const url = "https://asia-northeast1-avtomat-40a28.cloudfunctions.net/get_artifact_data?artifactId="+artifactId;
+  console.log(`fetch list from ${url}...`);
+  var json = await fetchJSON(url);
+  console.log('saveList...');
+  await updateList(json, listId);
+}
+  
+export const ec_europa_eu__sanctions_list = functions.pubsub
+    .schedule(
+        "*/15 * * * *"
+        //"5 11 * * *"
+    )
+    .timeZone("Australia/Sydney")
+    .onRun(async () => fetchList('ec_europa_eu__sanctions_list'));
+
+export const un_org__consolidated_individuals = functions.pubsub
+    .schedule(
+        "*/15 * * * *"
+        //"5 11 * * *"
+    )
+    .timeZone("Australia/Sydney")
+    .onRun(async () => fetchList('un_org__consolidated_individuals'));
+
+    // export const un_org__consolidated_individuals = functions.pubsub
+    // .schedule("5 11 * * *")
+    // .timeZone("Australia/Sydney")
+    // .onRun(async () => {
+    //     await updateList(await sanctions.un_org__consolidated_individuals(), 
+    //     'un_org__consolidated_individuals', "Name of Individual or Entity");
+    // });
+        
 
 export const dfat_gov_au__consolidated_list = functions.pubsub
-//.schedule("* * * * *")
-.schedule("5 11 * * *")
+.schedule("*/15 * * * *")
 .timeZone("Australia/Sydney")
-.onRun(async () =>{ 
-  console.log('fetch list...');
-  await sanctions.dfat_gov_au__consolidated_list();
-  console.log('saveList...');
-  await saveList(await sanctions.dfat_gov_au__consolidated_list(), 
-    'dfat_gov_au__consolidated_list', "Name of Individual or Entity");
-  return null;
-});
+.onRun(async () => fetchList('dfat_gov_au__consolidated_list'));
+
+// .onRun(async () =>{ 
+//   console.log('fetch list...');
+//   await sanctions.dfat_gov_au__consolidated_list();
+//   console.log('saveList...');
+//   await updateList(await sanctions.dfat_gov_au__consolidated_list(), 
+//     'dfat_gov_au__consolidated_list', "Name of Individual or Entity");
+//   return null;
+// });
 
 // //fetchUK in index.js
 // export const gov_uk__financial_sanctions_list = functions.pubsub
@@ -29,22 +103,13 @@ export const dfat_gov_au__consolidated_list = functions.pubsub
 //     'dfat_gov_au__consolidated_list', "Name of Individual or Entity");
 // });
 
-export const ec_europa_eu__sanctions_list = functions.pubsub
-.schedule("5 11 * * *")
-.timeZone("Australia/Sydney")
-.onRun(async () => {
-  await sanctions.ec_europa_eu__sanctions_list();
-
-    await saveList(await sanctions.ec_europa_eu__sanctions_list(), 
-    'ec_europa_eu__sanctions_list', "Name of Individual or Entity");
-});
 
 export const government_nl__dutch_national_sanctions_list = functions.pubsub
 .schedule("5 11 * * *")
 .timeZone("Australia/Sydney")
 .onRun(async () => {
-    await saveList(await sanctions.government_nl__dutch_national_sanctions_list(), 
-    'government_nl__dutch_national_sanctions_list', "Name of Individual or Entity");
+    await updateList(await sanctions.government_nl__dutch_national_sanctions_list(), 
+    'government_nl__dutch_national_sanctions_list');
 });
 
 // //Have to add in index.js
@@ -57,13 +122,6 @@ export const government_nl__dutch_national_sanctions_list = functions.pubsub
 // });
 
 
-export const un_org__consolidated_individuals = functions.pubsub
-.schedule("5 11 * * *")
-.timeZone("Australia/Sydney")
-.onRun(async () => {
-    await saveList(await sanctions.un_org__consolidated_individuals(), 
-    'un_org__consolidated_individuals', "Name of Individual or Entity");
-});
 
 // Have to add in index.js
 // export const un_org__consolidated_entities = functions.pubsub
@@ -79,8 +137,8 @@ export const treasury_gov__nonsdnl = functions.pubsub
 .schedule("5 11 * * *")
 .timeZone("Australia/Sydney")
 .onRun(async () => {
-    await saveList(await sanctions.treasury_gov__nonsdnl(), 
-    'treasury_gov__nonsdnl', "Name of Individual or Entity");
+    await updateList(await sanctions.treasury_gov__nonsdnl(), 
+    'treasury_gov__nonsdnl');
 });
 
 
@@ -88,8 +146,8 @@ export const pmddtc_state_gov__aeca_dsl = functions.pubsub
 .schedule("5 11 * * *")
 .timeZone("Australia/Sydney")
 .onRun(async () => {
-    await saveList(await sanctions.pmddtc_state_gov__aeca_dsl(), 
-    'pmddtc_state_gov__aeca_dsl', "Name of Individual or Entity");
+    await updateList(await sanctions.pmddtc_state_gov__aeca_dsl(), 
+    'pmddtc_state_gov__aeca_dsl');
 });
 
 // Have to add in index.js
@@ -106,8 +164,8 @@ export const bis_doc_gov__denied_persons = functions.pubsub
 .schedule("5 11 * * *")
 .timeZone("Australia/Sydney")
 .onRun(async () => {
-    await saveList(await sanctions.bis_doc_gov__denied_persons(), 
-    'bis_doc_gov__denied_persons', "Name of Individual or Entity");
+    await updateList(await sanctions.bis_doc_gov__denied_persons(), 
+    'bis_doc_gov__denied_persons');
 });
 
 //Have to add in index.js
@@ -133,8 +191,8 @@ export const occ_gov__enforcement_actions = functions.pubsub
 .schedule("5 11 * * *")
 .timeZone("Australia/Sydney")
 .onRun(async () => {
-    await saveList(await sanctions.occ_gov__enforcement_actions(), 
-    'occ_gov__enforcement_actions', "Name of Individual or Entity");
+    await updateList(await sanctions.occ_gov__enforcement_actions(), 
+    'occ_gov__enforcement_actions');
 });
 
 //Have to add in index.js
@@ -160,8 +218,8 @@ export const dgtresor_gouv_fr__national_freeze_registry = functions.pubsub
 .schedule("5 11 * * *")
 .timeZone("Australia/Sydney")
 .onRun(async () => {
-    await saveList(await sanctions.dgtresor_gouv_fr__national_freeze_registry(), 
-    'dgtresor_gouv_fr__national_freeze_registry', "Name of Individual or Entity");
+    await updateList(await sanctions.dgtresor_gouv_fr__national_freeze_registry(), 
+    'dgtresor_gouv_fr__national_freeze_registry');
 });
 
 // Have to add in index.js
@@ -188,8 +246,8 @@ export const publicsafety_gc_ca__counter_terrorism_entity = functions.pubsub
 .schedule("5 11 * * *")
 .timeZone("Australia/Sydney")
 .onRun(async () => {
-    await saveList(await sanctions.publicsafety_gc_ca__counter_terrorism_entity(), 
-    'gc_ca__consol_autonomous_sanctions', "Name of Individual or Entity");
+    await updateList(await sanctions.publicsafety_gc_ca__counter_terrorism_entity(), 
+    'gc_ca__consol_autonomous_sanctions');
 });
 
 // export const  = functions.pubsub
