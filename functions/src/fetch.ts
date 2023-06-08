@@ -55,7 +55,9 @@ async function fetchList(listId: string) {
   await updateList(json, listId);
 }
   
-export const ec_europa_eu__sanctions_list = functions.pubsub
+export const ec_europa_eu__sanctions_list = functions
+.runWith({ timeoutSeconds: 540 })
+.pubsub
     .schedule(
         "*/15 * * * *"
         //"5 11 * * *"
@@ -63,7 +65,9 @@ export const ec_europa_eu__sanctions_list = functions.pubsub
     .timeZone("Australia/Sydney")
     .onRun(async () => fetchList('ec_europa_eu__sanctions_list'));
 
-export const un_org__consolidated_individuals = functions.pubsub
+export const un_org__consolidated_individuals = functions
+.runWith({ timeoutSeconds: 540 })
+.pubsub
     .schedule(
         "*/15 * * * *"
         //"5 11 * * *"
@@ -80,28 +84,20 @@ export const un_org__consolidated_individuals = functions.pubsub
     // });
         
 
-export const dfat_gov_au__consolidated_list = functions.pubsub
+export const dfat_gov_au__consolidated_list = functions
+.runWith({ timeoutSeconds: 540 })
+.pubsub
 .schedule("*/15 * * * *")
 .timeZone("Australia/Sydney")
 .onRun(async () => fetchList('dfat_gov_au__consolidated_list'));
 
-// .onRun(async () =>{ 
-//   console.log('fetch list...');
-//   await sanctions.dfat_gov_au__consolidated_list();
-//   console.log('saveList...');
-//   await updateList(await sanctions.dfat_gov_au__consolidated_list(), 
-//     'dfat_gov_au__consolidated_list', "Name of Individual or Entity");
-//   return null;
-// });
+export const treasury_gov__ofac_sdnl = functions
+.runWith({ timeoutSeconds: 540 })
+.pubsub
+.schedule("*/15 * * * *")
+.timeZone("Australia/Sydney")
+.onRun(async () => fetchList('treasury_gov__ofac_sdnl'));
 
-// //fetchUK in index.js
-// export const gov_uk__financial_sanctions_list = functions.pubsub
-// .schedule("5 11 * * *")
-// .timeZone("Australia/Sydney")
-// .onRun(async () => {
-//     await saveList(await sanctions.gov_uk__financial_sanctions_list(), 
-//     'dfat_gov_au__consolidated_list', "Name of Individual or Entity");
-// });
 
 
 export const government_nl__dutch_national_sanctions_list = functions.pubsub

@@ -139,3 +139,8 @@ curl -X POST -H "Content-Type:application/json" -H "X-MyHeader: 123" "https://us
 ```bash
 curl -X POST -H "Content-Type:application/json" -H "X-MyHeader: 123" "https://us-central1-screener-9631e.cloudfunctions.net/test?test_parameter=hello" -d '{"test_json":"Hello World!"}'
 ```
+
+
+## **Security Rules** ##
+firebase deploy --only firestore:rules
+

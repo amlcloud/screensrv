@@ -71,6 +71,10 @@ export async function updateList(jsonArray: any[], listId: string) {
   );
 
   await deleteLargeColByQuery(docRef.collection("item"));
+
+  const itemCol = await docRef.collection("item").get();
+  console.log(`deleted items, current size: ${itemCol.size}`);
+
   console.log(`save ${jsonArray.length} documents`);
   await saveDocuments(jsonArray, docRef.collection("item"));
   await saveFields(jsonArray, listId);
@@ -89,11 +93,13 @@ export async function saveDocuments(jsonArray: any[], colRef: CollectionReferenc
     batch.set(colRef.doc(), item);
     counter++;
     if (counter > FIRESTORE_WRITE_BATCH_SIZE) {
+      console.log(`commit batch of ${counter} documents`);
       await batch.commit();
       batch = db.batch();
       counter = 0;
     }
   }
+  console.log(`commit batch of ${counter} documents`);
   await batch.commit();
 }
 

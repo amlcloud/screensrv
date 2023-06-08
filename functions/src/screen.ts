@@ -6,13 +6,22 @@ import { gramCounterBool } from "./gram";
 import QuerySnapshot = admin.firestore.QuerySnapshot;
 type Query = admin.firestore.Query;
 
-export const onSearchCreate = functions.firestore
+export const  onSearchCreate = functions.firestore
 	.document("user/{userId}/search/{searchId}")
 	.onCreate(async (document: DocumentSnapshot, context) => {
 		let userId = document.ref.path.split("/")[1];
 
 		await userTriggeredScreen(document, document.data()!['target'], 2, 0.9, userId);
 	});
+
+export const  onCaseSearchCreate = functions.firestore
+	.document("user/{userId}/case/{caseId}/search/{searchId}")
+	.onCreate(async (document: DocumentSnapshot, context) => {
+		let userId = document.ref.path.split("/")[1];
+
+		await userTriggeredScreen(document, document.data()!['target'], 2, 0.9, userId);
+	});
+
 
 export async function userTriggeredScreen(
 	searchDoc: DocumentSnapshot,
