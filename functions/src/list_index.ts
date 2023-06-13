@@ -125,13 +125,16 @@ export const index_list2 = functions
                   let value =
                     item.data()[entityIndexFields.docs[0].data().value];
                   if (!Array.isArray(value)) {
-                    const indexDocRef = addToBatch(
-                      batch,
-                      listId,
-                      type,
-                      item.ref,
-                      value
-                    );
+                    let indexDocRef = null;
+                    if (value != "undefined") {
+                      indexDocRef = addToBatch(
+                        batch,
+                        listId,
+                        type,
+                        item.ref,
+                        value
+                      );
+                    }
                     counter++;
                     if (indexDocRef !== undefined) indexMap.set(item.ref, true);
                     if (counter > 490) {
@@ -150,18 +153,20 @@ export const index_list2 = functions
                       containsArray = true;
                       break;
                     }
-                    if (value != "undefined") {
-                      name += (name.length > 0 ? " " : "") + value;
-                    }
+
+                    name += (name.length > 0 ? " " : "") + value;
                   }
                   if (!containsArray) {
-                    const indexDocRef = addToBatch(
-                      batch,
-                      listId,
-                      type,
-                      item.ref,
-                      name
-                    );
+                    let indexDocRef = null;
+                    if (!name.includes("undefined")) {
+                      indexDocRef = addToBatch(
+                        batch,
+                        listId,
+                        type,
+                        item.ref,
+                        name
+                      );
+                    }
                     counter++;
                     if (indexDocRef !== undefined) indexMap.set(item.ref, true);
                     if (counter > 490) {
@@ -176,15 +181,17 @@ export const index_list2 = functions
                     item.data()[entityIndexFields.docs[0].data().value];
                   if (Array.isArray(values)) {
                     for (let value of values) {
-                      const indexDocRef = addToBatch(
-                        batch,
-                        listId,
-                        type,
-                        item.ref,
-                        value
-                      );
+                      let indexDocRef = null;
+                      if (value != "undefined") {
+                        indexDocRef = addToBatch(
+                          batch,
+                          listId,
+                          type,
+                          item.ref,
+                          value
+                        );
+                      }
                       counter++;
-
                       if (indexDocRef !== undefined)
                         indexMap.set(item.ref, true);
 
@@ -220,7 +227,7 @@ function addToBatch(
   ref: any,
   name: string
 ): DocumentReference | undefined {
-  if (name === undefined || name.includes("undefined")) {
+  if (name === undefined) {
     console.log(`undefined name for ${ref.path}, list: ${listId}}`);
     return undefined;
   }
