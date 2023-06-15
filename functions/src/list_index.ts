@@ -122,11 +122,11 @@ export const index_list2 = functions
               let type = indexConfig.data().type;
               for (let item of items.docs) {
                 if (type === "Single field") {
-                  let value =
+                  let value: string =
                     item.data()[entityIndexFields.docs[0].data().value];
                   if (!Array.isArray(value)) {
-                    let indexDocRef = null;
-                    if (value != "undefined") {
+                    let indexDocRef = undefined;
+                    if (value != undefined) {
                       indexDocRef = addToBatch(
                         batch,
                         listId,
@@ -148,25 +148,25 @@ export const index_list2 = functions
                   var containsArray = false;
                   var name = "";
                   for (let entityIndexField of entityIndexFields.docs) {
-                    let value = item.data()[entityIndexField.data().value];
+                    let value: string =
+                      item.data()[entityIndexField.data().value];
                     if (Array.isArray(value)) {
                       containsArray = true;
                       break;
                     }
-
-                    name += (name.length > 0 ? " " : "") + value;
+                    if (value != undefined) {
+                      name += (name.length > 0 ? " " : "") + value;
+                    }
                   }
                   if (!containsArray) {
-                    let indexDocRef = null;
-                    if (!name.includes("undefined")) {
-                      indexDocRef = addToBatch(
-                        batch,
-                        listId,
-                        type,
-                        item.ref,
-                        name
-                      );
-                    }
+                    const indexDocRef = addToBatch(
+                      batch,
+                      listId,
+                      type,
+                      item.ref,
+                      name
+                    );
+
                     counter++;
                     if (indexDocRef !== undefined) indexMap.set(item.ref, true);
                     if (counter > 490) {
@@ -177,12 +177,12 @@ export const index_list2 = functions
                     }
                   }
                 } else if (type === "Array of values") {
-                  let values =
+                  let values: string[] =
                     item.data()[entityIndexFields.docs[0].data().value];
                   if (Array.isArray(values)) {
                     for (let value of values) {
                       let indexDocRef = null;
-                      if (value != "undefined") {
+                      if (value != undefined) {
                         indexDocRef = addToBatch(
                           batch,
                           listId,
