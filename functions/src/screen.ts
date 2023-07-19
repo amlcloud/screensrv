@@ -22,13 +22,20 @@ export const  onCaseSearchCreate = functions.firestore
 		await userTriggeredScreen(document, document.data()!['target'], 2, 0.9, userId);
 	});
 
+export const OnCaseSearchResCreate = functions.firestore
+	.document("user/{userId}/case/{caseId}/search/{searchId}/result/{resultId}")
+	.onCreate(async (document: DocumentSnapshot, context) => {
+		let userId = document.ref.path.split("/")[1];
+
+		await userTriggeredScreen(document, document.data()!['target'], 2, 0.9, userId);
+	});
 
 export async function userTriggeredScreen(
 	searchDoc: DocumentSnapshot,
 	searchName: string,
 	gramSize: number,
 	pres: number,
-	userId: string
+	userId: string,
 ): Promise<number> {
 	console.log(`search for ${searchName}`);
 
