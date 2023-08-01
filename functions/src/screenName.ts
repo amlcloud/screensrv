@@ -5,37 +5,30 @@ import { db } from "./index";
 //Minimal lenght of string provided
 const MIN_LENGHT = 7;
 
-export const ScreenName = functions.https.onRequest(async (req, res) => {
+//Reusable function for fetching screening results
+export async function getScreenResults(name:string, precision: number) {
 	//getting variables from request and checking them
-	if (req.method == "GET") {
-		var name: any = req.query.name as string;
-		var precision: any = req.query.precision;
-	} else if (req.method == "POST") {
-		var name: any = req.body.name as string;
-		var precision = req.body.precision;
+	if(!name || name.length <MIN_LENGHT){
+		throw new Error('Parameter "name" -min 7 characters');
 	}
-	if (!name|| name.length < MIN_LENGHT) {
-		res.status(400).send('Parameter "name" - min 7 characters');
-		return;
-	}else if (!precision) {
-		res.status(400).send('Parameter precision was not provided');
-		return;
+	if(!precision){
+		throw new Error ('Parameter precision was not provided');
 	}
 
-	console.log(`preparing search for ${name} with ${precision} precision`);
+	console.log(`preparing search for ${ name } with ${ precision } precision`);
 
-	// Preparing data for search
+	//Preparing data for search
 	let target = "-" + name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "") + "-";
 	let chunks: string[] = [];
 	for (let i = 0; i < target.length - 1; i++) {
 		chunks.push(target[i] + target[i + 1]);
 	}
 
-	// target_points is points which determine how many chunks will be used for search according to string lenght and precision
+	//target_points is points which determine how many chunks will be used for search according to string length and precision
 	let target_points: number = Math.floor(chunks.length * precision);
 	console.log(
 		"data is ready for search, " +
-			`string: ${target} ,elements: ${chunks} , ${chunks.length} chunks ,points: ${target_points}`
+		`string: ${target} ,elements: ${chunks} , ${chunks.length} chunks ,points: ${target_points}`
 	);
 
 	//Function takes array of strings and  returns all combinations of given number amount of strings from this array
@@ -69,25 +62,21 @@ export const ScreenName = functions.https.onRequest(async (req, res) => {
 	}
 	let results: Results[] = [];
 
-	/*
-	This function takes array with chunks and ref to collection, and returns querry of type:
-		ref.where(chunk[0] == true).where(chunk[1] == true).etc
-	 */
 	function QueryPrep(
-		combs: string[],
+		combs:string[],
 		ref: FirebaseFirestore.Query<DocumentData>
 	): any {
-		if (combs.length < 1) {
+		if(combs.length <1){
 			return ref;
-		} else {
+		}else{
 			let query = ref.where(combs.shift() as unknown as FieldPath, "==", true);
 			return QueryPrep(combs, query);
 		}
 	}
 
-	//Creating array of promises for getresult function
+	//Creating array of promises for getResult function
 	let promises: Promise<void>[] = [];
-	//Function takes array of combinations and data and checks for simular words  and pushes them into array
+	//Function takes array of combinations and data and checks for similar words and pushes them into array
 	async function getResults(
 		combs: string[],
 		ref: FirebaseFirestore.Query<DocumentData>
@@ -119,7 +108,7 @@ export const ScreenName = functions.https.onRequest(async (req, res) => {
 		});
 	}
 
-	console.log("exequting queries");
+	console.log("executing queries");
 	target_combinations.map(async (arr) => {
 		promises.push(getResults(arr, index));
 	});
@@ -131,8 +120,46 @@ export const ScreenName = functions.https.onRequest(async (req, res) => {
 	);
 
 	// Gathering and sending data
-	let responcePromises = results.map(async (obj) => await obj.ref.get());
-	let docs = await Promise.all(responcePromises);
+	let responsePromises = results.map(async (obj) => await obj.ref.get());
+	let docs = await Promise.all(responsePromises);
 
-	res.status(200).send(docs.map((d) => d.data()));
+	return docs.map((d) => d.data());
+
+}
+
+export const ScreenName = functions.https.onRequest(async (req, res) => {
+	let name: string;
+	let precision: number;
+
+	if (req.method == "GET") {
+		name = req.query.name as string;
+		precision = parseFloat(req.query.precision as string);
+
+		try {
+			const result = await getScreenResults(name, precision);
+			res.status(200).send(result);
+		} catch (err) {
+			if (err instanceof Error) {
+				res.status(400).send(err.message);
+			} else {
+				res.status(400).send("An error occurred");
+			}
+		}
+	} else if (req.method == "POST") {
+		name = req.body.name as string;
+		precision = parseFloat(req.body.precision as string);
+
+		try {
+			const result = await getScreenResults(name, precision);
+			res.status(200).send(result);
+		} catch (err) {
+			if (err instanceof Error) {
+				res.status(400).send(err.message);
+			} else {
+				res.status(400).send("An error occurred");
+			}
+		}
+	} else {
+		res.status(405).send("Method not allowed");
+	}
 });
