@@ -25,7 +25,7 @@ export const onMessageCreate = functions.firestore
 
         const headers = await prepareOpenAIHeaders();
         const body = {
-            "model": "gpt-3.5-turbo-0613",
+            "model": "gpt-4",
             "messages": messages,
             "max_tokens": 500,
             "temperature": 0.6
@@ -36,13 +36,15 @@ export const onMessageCreate = functions.firestore
             
             if(res.status !== 200){
                 console.error(res.data);
-                throw new functions.https.HttpsError('internal', 'Failed to call OpenAI API');
+                throw new functions.https.HttpsError('internal', 'Failed to call OpenAI API', 
+                    { userMessage: 'There was a problem with the AI assistant.Please try again later.'});
             }
 
             const message = res.data.choices[0]?.message;
             if(!message){
                 console.error('No answer from assistant');
-                throw new functions.https.HttpsError('not-found', 'No answer from assistant' )
+                throw new functions.https.HttpsError('not-found', 'No answer from assistant',
+                    { userMessage: 'The AI assistant did not provide a response. Please try again.' } )
             }
 
             await messagesRef.add({
@@ -52,6 +54,7 @@ export const onMessageCreate = functions.firestore
             });
         }catch(err){
             console.error(err);
-            throw new functions.https.HttpsError('unknown', 'Failed to process message');
+            throw new functions.https.HttpsError('unknown', 'Failed to process message',
+                { userMessage: 'There was an error processing your message. Please try again.' });
         }
     })
