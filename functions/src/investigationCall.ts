@@ -36,15 +36,13 @@ export const onMessageCreate = functions.firestore
             
             if(res.status !== 200){
                 console.error(res.data);
-                throw new functions.https.HttpsError('internal', 'Failed to call OpenAI API', 
-                    { userMessage: 'There was a problem with the AI assistant.Please try again later.'});
+                throw new functions.https.HttpsError('internal', 'Failed to call OpenAI API');
             }
 
             const message = res.data.choices[0]?.message;
             if(!message){
                 console.error('No answer from assistant');
-                throw new functions.https.HttpsError('not-found', 'No answer from assistant',
-                    { userMessage: 'The AI assistant did not provide a response. Please try again.' } )
+                throw new functions.https.HttpsError('not-found', 'No answer from assistant')
             }
 
             await messagesRef.add({
@@ -53,8 +51,11 @@ export const onMessageCreate = functions.firestore
                 'content':message.content,
             });
         }catch(err){
-            console.error(err);
-            throw new functions.https.HttpsError('unknown', 'Failed to process message',
-                { userMessage: 'There was an error processing your message. Please try again.' });
+            // Save the error to the document
+            await messagesRef.add({
+                'role': 'assistant',
+                'timeCreated': admin.firestore.FieldValue.serverTimestamp(),
+                'error': (err as Error).message || 'Failed to process message', // Save the error message
+            });
         }
     })
