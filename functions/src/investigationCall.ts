@@ -25,7 +25,7 @@ export const onMessageCreate = functions.firestore
 
         const headers = await prepareOpenAIHeaders();
         const body = {
-            "model": "gpt-3.5-turbo-0613",
+            "model": "gpt-4",
             "messages": messages,
             "max_tokens": 500,
             "temperature": 0.6
@@ -42,7 +42,7 @@ export const onMessageCreate = functions.firestore
             const message = res.data.choices[0]?.message;
             if(!message){
                 console.error('No answer from assistant');
-                throw new functions.https.HttpsError('not-found', 'No answer from assistant' )
+                throw new functions.https.HttpsError('not-found', 'No answer from assistant')
             }
 
             await messagesRef.add({
@@ -51,7 +51,11 @@ export const onMessageCreate = functions.firestore
                 'content':message.content,
             });
         }catch(err){
-            console.error(err);
-            throw new functions.https.HttpsError('unknown', 'Failed to process message');
+            // Save the error to the document
+            await messagesRef.add({
+                'role': 'assistant',
+                'timeCreated': admin.firestore.FieldValue.serverTimestamp(),
+                'error': (err as Error).message || 'Failed to process message', // Save the error message
+            });
         }
     })
