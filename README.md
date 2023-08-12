@@ -156,3 +156,42 @@ curl -X POST -H "Content-Type:application/json" -H "X-MyHeader: 123" "https://us
 ## **Security Rules** ##
 firebase deploy --only firestore:rules
 
+## **Emulator Installation** ##
+
+Prerequisites
+-------------------------------------------------------------------------------------------------
+Must have node.js installed (preferrably version 16 or higher)
+   - ensure that PATH is enabled on the install configuration(to be able to run  on any cmd based terminal)
+   - ensure NPM is working and installed correctly
+
+Java JDK version 11 or higher.
+use cmd terminal 
+-------------------------------------------------------------------------------------------------
+install guide
+-------------------------------------------------------------------------------------------------
+1.) Enter into terminal and copy paste command 
+   - npm install -g firebase-tools
+   - (this will install firebase tools to allow you to use firebase commands from anywhere)
+
+2.) Set up the firebase emulator suite by using command 
+   - firebase init emulators
+
+   - This starts a configuration wizard allowing you to select required emulators
+   - Make sure to select The functions emulators **only** for installation if not installed
+
+3.) Start Emulator using 'firebase emulators:start --only functions' in project path
+   - this will start the all emulators installed
+   - while running, a table will appear in console which details the emulators that are running with their respective host:port and emulator ui view
+       - find  the "http://127.0.0.1:4000/functions" url and ctrl+click  or copy-paste into browser (port will vary depending on machine)
+       - you should be able to view the logs of function calls
+       
+
+4.) Test Firebase emulator
+   - To test a firebase function format the function call as a URL
+   - format it like this http://localhost:{function_port}/{project-id}/{region}/{Function (required search parameters)}
+   - ensure to input the required ports , project id, region and desired function in the url
+   - Once done, copy-paste the modified url into the browser and monitor its activity through the firebase emulator ui ( it should be logged in the terminal) 
+   - if no data is received or displayed, enter int terminal ctrl-c to clear the emulator cache
+   - restart emulator to try again  
+
+	
