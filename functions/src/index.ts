@@ -9,6 +9,7 @@ export var db = getFirestore();
 
 export { onSearchCreate } from './screen';
 export { onCaseSearchCreate } from './screen';
+export { onCaseInputCreate } from './screen'
 export { getList } from './list';
 export { getListDetails } from './list';
 export { GetSanctionsList } from './sanctions_list'
