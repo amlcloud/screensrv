@@ -2,7 +2,7 @@
 // onCaseInputCreate creates a document inside 'input' collection when a user types into the input field on CASES page
 import * as functions from "firebase-functions";
 
-export const onCaseInputCreate = functions.firestore
+export const onCaseInputWrite = functions.firestore
 	.document("user/{userId}/case/{caseId}/input/{inputId}")
 	.onWrite(async (change, context) => {
 	//let userId = document.ref.path.split("/")[1]
