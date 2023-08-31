@@ -1,15 +1,18 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import axios from 'axios';
+import OpenAI from 'openai';
 
 const openAIKey = functions.config().openai.key;
+const openai = new OpenAI({
+    apiKey: openAIKey
+})
 
-const prepareOpenAIHeaders = async () =>{
-    return{
-        'Authorization': `Bearer ${openAIKey}`,
-        'Content-Type': 'application/json',
-    };
-};
+// const prepareOpenAIHeaders = async () =>{
+//     return{
+//         'Authorization': `Bearer ${openAIKey}`,
+//         'Content-Type': 'application/json',
+//     };
+// };
 
 export const onMessageCreate = functions.firestore
     .document('user/{userId}/case/{caseId}/search/{searchId}/res/{resId}/message/{messageId}')
@@ -22,35 +25,26 @@ export const onMessageCreate = functions.firestore
             delete data.timeCompleted;
             return data;
         });
+        try {
+            const completion = await openai.chat.completions.create({
+                model: "gpt-4",
+                messages: [{role:"assistant", content:"messages"}],
+                max_tokens: 500,
+                temperature: 0.6
+            });
 
-        const headers = await prepareOpenAIHeaders();
-        const body = {
-            "model": "gpt-4",
-            "messages": messages,
-            "max_tokens": 500,
-            "temperature": 0.6
-        };
-        
-        try{
-            const res = await axios.post('https://api.openai.com/v1/chat/completions', body, {headers:headers});
-            
-            if(res.status !== 200){
-                console.error(res.data);
-                throw new functions.https.HttpsError('internal', 'Failed to call OpenAI API');
-            }
-
-            const message = res.data.choices[0]?.message;
-            if(!message){
+            const message = completion.choices[0]?.message;
+            if (!message) {
                 console.error('No answer from assistant');
-                throw new functions.https.HttpsError('not-found', 'No answer from assistant')
+                throw new functions.https.HttpsError('not-found', 'No answer from assistant');
             }
 
             await messagesRef.add({
-                'role':'assistant',
-                'timeCreated':admin.firestore.FieldValue.serverTimestamp(),
-                'content':message.content,
+                'role': 'assistant',
+                'timeCreated': admin.firestore.FieldValue.serverTimestamp(),
+                'content': message.content,
             });
-        }catch(err){
+        } catch (err) {
             // Save the error to the document
             await messagesRef.add({
                 'role': 'assistant',
