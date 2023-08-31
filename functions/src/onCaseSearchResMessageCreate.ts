@@ -17,6 +17,10 @@ export const onCaseSearchResMessageCreate = functions.firestore
   )
   .onCreate(async (snapshot, context) => {
     const { userId, caseId, searchId, resId } = context.params;
+
+    // make sure we only process messages from users
+    if (snapshot.data()["role"] !== "user") return;
+
     const messagesRef = admin
       .firestore()
       .collection(
