@@ -12,6 +12,7 @@ export { onSearchCreate } from "./screen";
 export { onCaseSearchCreate } from "./screen";
 export { onCaseSearchResCreate } from "./onCaseSearchResCreate";
 export { onCaseInputWrite } from './onCaseInputWrite'
+export { onCaseSearchResMessageCreate } from "./onCaseSearchResMessageCreate";
 export { getList } from "./list";
 export { getListDetails } from "./list";
 export { GetSanctionsList } from "./sanctions_list";
