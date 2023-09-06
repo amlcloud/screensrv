@@ -7,13 +7,6 @@ const openai = new OpenAI({
     apiKey: openAIKey
 })
 
-// const prepareOpenAIHeaders = async () =>{
-//     return{
-//         'Authorization': `Bearer ${openAIKey}`,
-//         'Content-Type': 'application/json',
-//     };
-// };
-
 export const onMessageCreate = functions.firestore
     .document('user/{userId}/case/{caseId}/search/{searchId}/res/{resId}/message/{messageId}')
     .onCreate(async (snapshot, context) =>{
