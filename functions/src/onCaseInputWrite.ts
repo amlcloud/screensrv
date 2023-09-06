@@ -1,16 +1,13 @@
 
 // onCaseInputCreate creates a document inside 'input' collection when a user types into the input field on CASES page
-import axios from "axios";
+
 import * as functions from "firebase-functions";
+import OpenAI from 'openai';
+
 
 const openAIKey = functions.config().openai.key;
 
-const prepareOpenAIHeaders = async () =>{
-     return{
-         'Authorization': `Bearer ${openAIKey}`,
-         'Content-Type': 'application/json',
-     };
- };
+const openai = new OpenAI({ apiKey: openAIKey})
 export const onCaseInputWrite = functions.firestore
 	.document("user/{userId}/case/{caseId}/input/{inputId}")
 	.onWrite(async (change, context) => {
@@ -27,29 +24,25 @@ export const onCaseInputWrite = functions.firestore
 		// If new input is different that old input
 		 if(newInput !== oldInput){
 		 	console.log(`OLD: ${oldInput},  NEW: ${newInput}`)
-			
-		 	// Headers for Axios request
-		 	const headers = await prepareOpenAIHeaders();
 
-			// Request Body for Axios request
-		 	const body = {
-		 		"model": "gpt-3.5-turbo",
-		 		"messages": [{"role": "user", "content": newInput}],
-		 		"max_tokens": 500,
-		 		"temperature": 0.6
-		 	};
-		 	console.log(body)
 		 	 try {
-		 	 	// Axios Post request
-		 	 	const res = await axios.post('https://api.openai.com/v1/chat/completions', body, {headers: headers})
-		 	 	if(res.status !== 200){
-		 	 		console.error(res.data);
+		 	 	// Open AI Call
+				const completion = await openai.completions.create({
+					model: "gpt-4",
+		 		messages: [{"role": "user", "content": newInput}],
+		 		max_tokens: 500,
+		 		temperature: 0.6
+				})
+		 	 
+		
+		 	 	if(!completion || !completion.choices){
+		 	 		console.error("");
 		 	 		throw new functions.https.HttpsError('internal', 'Failed to call OpenAI API');
 		 	 	}
-				
-		 	 	console.log(res.data) // Replace with firestore storage
+				// Add firestore storage logic
+		 	 	console.log(completion?.choices[0]?.text) 
 		 	 } catch (err){
-		 	 	console.log("ERROR") // Replace with user friendly error message
+		 	 	console.error(err) // Replace with user friendly error message
 		 	 }
 		 }
 
