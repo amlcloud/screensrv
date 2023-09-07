@@ -7,10 +7,12 @@ initializeApp(); //{ credential: cert(serviceAccount) });
 
 export var db = getFirestore();
 
+
 export { onSearchCreate } from "./screen";
 export { onCaseSearchCreate } from "./screen";
 export { onMessageCreate } from "./investigationCall";
 export { onCaseSearchResCreate } from "./onCaseSearchResCreate";
+export { onCaseInputWrite } from './onCaseInputWrite'
 export { onCaseSearchResMessageCreate } from "./onCaseSearchResMessageCreate";
 export { getList } from "./list";
 export { getListDetails } from "./list";
