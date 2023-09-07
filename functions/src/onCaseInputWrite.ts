@@ -12,8 +12,6 @@ export const onCaseInputWrite = functions.firestore
 	.document("user/{userId}/case/{caseId}/input/{inputId}")
 	.onWrite(async (change, context) => {
 		
-		console.log(functions.config())
-		
 		const oldData = change.before.data()
 		const newData = change.after.data()
 
@@ -29,14 +27,14 @@ export const onCaseInputWrite = functions.firestore
 		 	 	// Open AI Call
 				const completion = await openai.completions.create({
 					model: "gpt-4",
-		 		messages: [{"role": "user", "content": newInput}],
-		 		max_tokens: 500,
-		 		temperature: 0.6
+		 			prompt: newInput,
+		 			max_tokens: 500,
+		 			temperature: 0.6
 				})
 		 	 
 		
 		 	 	if(!completion || !completion.choices){
-		 	 		console.error("");
+		 	 		console.error("Failed to call OpenAI");
 		 	 		throw new functions.https.HttpsError('internal', 'Failed to call OpenAI API');
 		 	 	}
 				// Add firestore storage logic
