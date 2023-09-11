@@ -12,16 +12,16 @@ export { onCaseSearchCreate } from "./screen";
 export { onCaseSearchResCreate } from "./onCaseSearchResCreate";
 export { getList } from "./list";
 export { getListDetails } from "./list";
-export { GetSanctionsList } from "./sanctions_list";
-export { GetSanctionsListEntities } from "./sanction_list_entities";
-export { GetSanctionsListItemEntity } from "./sanction_list_item_entity";
-export { ScreenName } from "./screenName";
-export { ScreenNames } from "./screenNames";
-export { StorageWriteList } from "./storage";
+export { getSanctionsList } from "./sanctions_list";
+export { getSanctionsListEntities } from "./sanction_list_entities";
+export { getSanctionsListItemEntity } from "./sanction_list_item_entity";
+export { screenName } from "./screenName";
+export { screenNames } from "./screenNames";
+export { storageWriteList } from "./storage";
 export { findName } from "./findName";
 
-export { index_list } from "./list_index";
-export { index_list2 } from "./list_index";
+export { indexList } from "./list_index";
+export { indexList2 } from "./list_index";
 export { test } from "./list_index";
 
 export { dfat_gov_au__consolidated_list } from "./fetch";
@@ -47,4 +47,4 @@ export { dgtresor_gouv_fr__national_freeze_registry } from "./fetch";
 // // export { dgtresor_gouv_fr__national_freeze_registry } from "./fetch";
 // export { gc_ca__consol_autonomous_sanctions } from "./fetch";
 
-export { GetSanctionLists } from "./GetSanctionLists";
+export { getSanctionLists } from "./GetSanctionLists";

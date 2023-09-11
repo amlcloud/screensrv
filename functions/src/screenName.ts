@@ -127,7 +127,7 @@ export async function getScreenResults(name:string, precision: number) {
 
 }
 
-export const ScreenName = functions.https.onRequest(async (req, res) => {
+export const screenName = functions.https.onRequest(async (req, res) => {
 	let name: string;
 	let precision: number;
 

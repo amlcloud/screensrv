@@ -17,7 +17,7 @@ export const test = functions
     res.send(JSON.stringify(request.body));
   });
 
-export const index_list = functions
+export const indexList = functions
   .runWith({ timeoutSeconds: 540 })
   .https.onRequest(async (request, res) => {
     cors(request, res, async () => {
@@ -64,7 +64,7 @@ export const index_list = functions
     });
   });
 
-export const index_list2 = functions
+export const indexList2 = functions
   .runWith({ timeoutSeconds: 540 })
   .https.onRequest(async (request, res) => {
     cors(request, res, async () => {

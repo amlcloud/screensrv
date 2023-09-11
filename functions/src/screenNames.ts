@@ -3,7 +3,7 @@ import { getScreenResults } from "./screenName";
 
 const MIN_LENGHT = 7;
 
-export const ScreenNames = functions.https.onRequest(async (req, res) => {
+export const screenNames = functions.https.onRequest(async (req, res) => {
   let names: string[];
   let precision: number;
 

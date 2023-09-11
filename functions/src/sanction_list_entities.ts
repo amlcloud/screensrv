@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import { db } from "./index";
 
 //returns the list of items (in JSON) of the sanction list.
-export const GetSanctionsListEntities = functions
+export const getSanctionsListEntities = functions
   .runWith({ timeoutSeconds: 60, memory: "1GB" })
   .https.onRequest(async (req, res) => {
     // Checking if request method was POST or GET and if item was provided

@@ -3,9 +3,9 @@ import { updateList } from "./common";
 
 
 // For testing the sanctions module
-test_fetch();
+testFetch();
 
-export async function test_fetch() {
+export async function testFetch() {
     try {
       console.log("fetch");
       // const list = await sanctions.dfat_gov_au__consolidated_list();

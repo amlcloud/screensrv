@@ -3,7 +3,7 @@ import { db } from "./index";
 
 // returns the list of JSON objects containing meta info about all sanction lists available on the system.
 
-export const GetSanctionsList = functions.https.onRequest(async (req, res) => {
+export const getSanctionsList = functions.https.onRequest(async (req, res) => {
 
     const listDoc =  db.collection('list');
 
