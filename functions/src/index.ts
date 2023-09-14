@@ -15,17 +15,17 @@ export { onCaseInputWrite } from "./onCaseInputWrite";
 export { onCaseSearchResMessageCreate } from "./onCaseSearchResMessageCreate";
 export { getList } from "./list";
 export { getListDetails } from "./list";
-export { GetSanctionsList } from "./sanctions_list";
-export { GetSanctionsListEntities } from "./sanction_list_entities";
-export { GetSanctionsListItemEntity } from "./sanction_list_item_entity";
-export { ScreenName } from "./screenName";
-export { ScreenNames } from "./screenNames";
-export { StorageWriteList } from "./storage";
+export { getSanctionsList } from "./sanctionsList";
+export { getSanctionsListEntities } from "./sanctionListEntities";
+export { getSanctionsListItemEntity } from "./sanctionListItemEntity";
+export { screenName } from "./screenName";
+export { screenNames } from "./screenNames";
+export { storageWriteList } from "./storage";
 export { findName } from "./findName";
 
-export { index_list } from "./list_index";
-export { index_list2 } from "./list_index";
-export { test } from "./list_index";
+export { indexList } from "./listIndex";
+export { indexList2 } from "./listIndex";
+export { test } from "./listIndex";
 
 export { dfat_gov_au__consolidated_list } from "./fetch";
 // export { gov_uk__financial_sanctions_list } from "./fetch";
@@ -50,4 +50,4 @@ export { dgtresor_gouv_fr__national_freeze_registry } from "./fetch";
 // // export { dgtresor_gouv_fr__national_freeze_registry } from "./fetch";
 // export { gc_ca__consol_autonomous_sanctions } from "./fetch";
 
-export { GetSanctionLists } from "./GetSanctionLists";
+export { getSanctionLists } from "./GetSanctionLists";

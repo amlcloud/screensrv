@@ -2,7 +2,7 @@ import { db } from "./index";
 import * as functions from "firebase-functions";
 import { getStorage } from "firebase-admin/storage";
 
-export const StorageWriteList = functions
+export const storageWriteList = functions
 	.runWith({ timeoutSeconds: 120, memory: "4GB" })
 	.https.onRequest(async (req, res) => {
 		if (req.method == "GET") {
