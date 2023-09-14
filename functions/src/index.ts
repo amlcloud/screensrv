@@ -12,17 +12,17 @@ export { onCaseSearchCreate } from "./screen";
 export { onCaseSearchResCreate } from "./onCaseSearchResCreate";
 export { getList } from "./list";
 export { getListDetails } from "./list";
-export { getSanctionsList } from "./sanctions_list";
-export { getSanctionsListEntities } from "./sanction_list_entities";
-export { getSanctionsListItemEntity } from "./sanction_list_item_entity";
+export { getSanctionsList } from "./sanctionsList";
+export { getSanctionsListEntities } from "./sanctionListEntities";
+export { getSanctionsListItemEntity } from "./sanctionListItemEntity";
 export { screenName } from "./screenName";
 export { screenNames } from "./screenNames";
 export { storageWriteList } from "./storage";
 export { findName } from "./findName";
 
-export { indexList } from "./list_index";
-export { indexList2 } from "./list_index";
-export { test } from "./list_index";
+export { indexList } from "./listIndex";
+export { indexList2 } from "./listIndex";
+export { test } from "./listIndex";
 
 export { dfat_gov_au__consolidated_list } from "./fetch";
 // export { gov_uk__financial_sanctions_list } from "./fetch";
