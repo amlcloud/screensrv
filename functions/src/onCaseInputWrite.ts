@@ -28,9 +28,10 @@ export const onCaseInputWrite = functions.firestore
 		 Return JSON text only, no additional comments.
   
 		 Text: `
-		
-		 // docRef -> user/USER_ID/search/NAME
-		const docRef = db.collection('search').doc('name')
+		const caseId = context.params.caseId
+		const userId = context.params.userId
+		 // caseDocRef -> user/USER_ID/search/NAME
+		const caseDocRef = db.collection('user').doc(userId).collection('case').doc(caseId)
 		const oldData = change.before.data()
 		const newData = change.after.data()
 
@@ -47,10 +48,10 @@ export const onCaseInputWrite = functions.firestore
 				 		prompt: promptPrefix + newInput,
 				 		max_tokens: 200,
 				 		temperature: 0.6
-				 	});
+				 	})
 			
 				 	if (!completion || !completion.choices || completion.choices.length === 0) {
-				 		await docRef.update({ 'error': 'No completion choices returned' });
+				 		await caseDocRef.update({ 'error': 'No completion choices returned' });
 				 		return;
 				 	}
 			
@@ -61,26 +62,29 @@ export const onCaseInputWrite = functions.firestore
 			
 				 	try {
 				 		const jsonContent = JSON.parse(text);
-				 		await docRef.update({
+				 		await caseDocRef.update({
 				 			'content': jsonContent
 				 		});
 			
 				 		if (jsonContent['name'] != null) {
-				 			const searchDoc = await db.collection('search').doc(jsonContent['name']).get();
+				 			const searchDoc = await caseDocRef.collection('search').doc(jsonContent['name']).get();
 				 			if (!searchDoc.exists) {
-				 				await db.collection('search').doc(jsonContent['name']).set({
+				 				await caseDocRef.collection('search').doc(jsonContent['name']).set({
 				 					'target': jsonContent['name'],
 				 					'timeCreated': admin.firestore.FieldValue.serverTimestamp(),
 				 					'author': context.params.userId
 				 				});
-				 				await docRef.update({ 'target': jsonContent['name'] });
+				 				await caseDocRef.update({ 'target': jsonContent['name'] });
 				 			}
 				 		}
 				 	} catch (e:any) {
-				 		await docRef.update({ 'error': e.toString() + '\n' + text });
+				 		await caseDocRef.update({ 'error': e.toString() + '\n' + text });
 				 	}
 				 } catch (err) {
-				 	console.error(err);
+					throw new functions.https.HttpsError(
+						"internal",
+						"Failed to process input"
+					  );
 				 }
 		 	 
 		 }
